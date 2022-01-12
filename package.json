@@ -1,0 +1,39 @@
+{
+  "name": "johnbot",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "license": "MIT",
+  "scripts": {
+    "prebuild": "rimraf dist",
+    "start": "tsc -p ./tsconfig.json && node ./dist/main.js",
+    "dev:debug": "nodemon src/main.ts"
+  },
+  "dependencies": {
+    "@discordjs/opus": "^0.5.3",
+    "@discordjs/voice": "^0.7.5",
+    "@types/fluent-ffmpeg": "^2.1.20",
+    "discord.js": "^13.5.1",
+    "dotenv": "^10.0.0",
+    "fluent-ffmpeg": "^2.1.2",
+    "libsodium-wrappers": "^0.7.9",
+    "module-alias": "^2.2.2",
+    "opusscript": "^0.0.8",
+    "redis": "^4.0.1",
+    "tsconfig-paths": "^3.12.0",
+    "youtube-search": "^1.1.6",
+    "ytdl": "^1.4.1",
+    "ytdl-core": "^4.10.0"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.8",
+    "nodemon": "^2.0.15",
+    "prettier": "^2.4.1",
+    "ts-node": "^10.4.0",
+    "tslib": "^2.3.1",
+    "typescript": "^4.5.4"
+  },
+  "_moduleAliases": {
+    "@util": "dist/util"
+  }
+}
