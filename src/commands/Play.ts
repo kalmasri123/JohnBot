@@ -51,28 +51,35 @@ class PlayCommand extends Command {
                 adapterCreator: memberVoiceChannel.guild.voiceAdapterCreator as any,
             });
         }
-        const audio = getYoutubeVideo(link, { seek: 0 });
-        // const resource = createAudioResource(audio.audio);
+        let audio;
+        try {
+            audio = await getYoutubeVideo(link, { seek: 0 });
+            // const resource = createAudioResource(audio.audio);
+        } catch (err) {
+            return message.reply('Please enter a valid link');
+        }
         const request: States.SongRequest = {
             content: audio,
             requester: this.message.member,
             link,
         };
         // audio.then(({ audio, title }) => {
-        queueResource(request, voiceConnection, fn).then(async () => {
-            //Song Request Successful
-            //Respond with success message
-            const content = await request.content;
-            const songRequestEmbed = new MessageEmbed()
-                .setColor('#FF0000')
-                .setTitle('Song Queued')
+        queueResource(request, voiceConnection, fn)
+            .then(async () => {
+                //Song Request Successful
+                //Respond with success message
+                const content = await request.content;
+                const songRequestEmbed = new MessageEmbed()
+                    .setColor('#FF0000')
+                    .setTitle('Song Queued')
 
-                .setDescription(
-                    `[${content.title}](${link})\n\nRequester:<@${this.message.member.id}>`,
-                )
-                .setThumbnail(content.thumbnail);
-            this.message.reply({ embeds: [songRequestEmbed] });
-        });
+                    .setDescription(
+                        `[${content.title}](${link})\n\nRequester:<@${this.message.member.id}>`,
+                    )
+                    .setThumbnail(content.thumbnail);
+                this.message.reply({ embeds: [songRequestEmbed] });
+            })
+            .catch(console.log);
     }
 }
 export default new PlayCommand();

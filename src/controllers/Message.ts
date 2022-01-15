@@ -45,6 +45,7 @@ async function handleMessage(guild: Guild) {
         return;
     } catch (err) {
         if (!resolved) {
+            message.reply("An Unexpected error has occurred")
             next();
         }
     }
