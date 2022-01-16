@@ -4,11 +4,12 @@ import { Readable, Transform } from 'stream';
 
 //key=guildid.value = VoiceState
 export interface SongContent {
-    resource: Readable;
+    resource: Readable | (() => Readable);
     audioResource?: AudioResource;
     title: string;
     thumbnail?: string;
     duration?: number;
+    lazy:boolean;
 }
 export interface SongRequest {
     content: SongContent | Promise<SongContent>;

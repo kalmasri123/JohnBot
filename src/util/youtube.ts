@@ -36,7 +36,18 @@ export async function searchYTVideos(
         ({ kind }) => kind == 'youtube#video',
     );
 }
-export async function getYoutubeVideo(link: string, { seek }) {
+export async function cacheYoutubeData({ title, thumbnail, lengthSeconds, ytID }) {
+    try {
+        await Promise.all([
+            set(`title_${ytID}`, title),
+            set(`thumbnail_${ytID}`, thumbnail),
+            set(`duration_${ytID}`, lengthSeconds),
+        ]);
+    } catch (err) {
+        console.log({ title, thumbnail, lengthSeconds, ytID });
+    }
+}
+export async function getYoutubeVideo(link: string, { seek }, lazy = false) {
     const ytID = ytdl.getVideoID(link);
     let [title, thumbnail, lengthSeconds] = await Promise.all([
         get(`title_${ytID}`),
@@ -48,34 +59,37 @@ export async function getYoutubeVideo(link: string, { seek }) {
         title = res.title;
         thumbnail = res.thumbnails[0].url;
         lengthSeconds = res.lengthSeconds;
-        Promise.all([
-            set(`title_${ytID}`, res.title),
-            set(`thumbnail_${ytID}`, res.thumbnails[0].url),
-            set(`duration_${ytID}`, res.lengthSeconds),
-        ]);
-    }
-    const audio = ytdl(link, { filter: 'audioonly', highWaterMark: 1 << 25 }).on('error', (err) =>
-        console.log(err),
-    );
-    // const audio = createYTStream(ytInfo,{},);
-    let resource: any = audio;
-    if (seek > 0) {
-        try {
-            resource = ffmpeg(audio)
-                .seekInput(seek)
-                .format('mp3')
-                .stream(null)
-                .on('error', (err) => console.log(err));
-        } catch (err) {
-            console.log(err);
-        }
+        cacheYoutubeData({ title, thumbnail, lengthSeconds, ytID });
     }
     const content: SongContent = {
         title,
-        resource: seek > 0 ? (resource as Readable) : audio,
+        resource: lazy ? loadStream : loadStream(),
         thumbnail: thumbnail,
         duration: lengthSeconds,
+        lazy,
     };
+    function loadStream(): Readable {
+        const audio = ytdl(link, { filter: 'audioonly', highWaterMark: 1 << 25 }).on(
+            'error',
+            (err) => console.log(err),
+        );
+        // const audio = createYTStream(ytInfo,{},);
+        let resource: any = audio;
+        if (seek > 0) {
+            try {
+                resource = ffmpeg(audio)
+                    .seekInput(seek)
+                    .format('mp3')
+                    .stream(null)
+                    .on('error', (err) => console.log(err));
+            } catch (err) {
+                console.log(err);
+            }
+        }
+        content.resource = resource;
+        return resource;
+    }
+
     return content;
 }
 
@@ -104,7 +118,10 @@ export async function queueResource(
         let request = queue.shift();
 
         request.content = await request.content;
-        const resource = createAudioResource(request.content.resource, { inlineVolume: true });
+        let readableStream = request.content.lazy
+            ? (request.content.resource as () => Readable)()
+            : request.content.resource as Readable;
+        const resource = createAudioResource(readableStream, { inlineVolume: true });
         request.content.audioResource = resource;
         resource.volume.setVolume(guildVoiceState.volume);
         player.play(resource);
@@ -124,8 +141,10 @@ export async function queueResource(
                 //There is more. Get top of queue.
                 request = queue.shift();
                 request.content = await request.content;
-
-                const resource = createAudioResource(request.content.resource, {
+                let readableStream = request.content.lazy
+                ? (request.content.resource as () => Readable)()
+                : request.content.resource as Readable;
+                const resource = createAudioResource(readableStream, {
                     inlineVolume: true,
                 });
                 request.content.audioResource = resource;
