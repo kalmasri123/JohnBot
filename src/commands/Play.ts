@@ -69,6 +69,7 @@ class PlayCommand extends Command {
             );
 
         if (!voiceConnection) {
+            console.log('NEW VC');
             voiceConnection = await joinVoiceChannel({
                 channelId: memberVoiceChannel.id,
                 guildId: this.guild.id,
@@ -78,7 +79,6 @@ class PlayCommand extends Command {
         links.map(async (el) => {
             let audio;
             try {
-                console.log(el);
                 audio = await getYoutubeVideo(el, { seek: 0 }, true);
                 // const resource = createAudioResource(audio.audio);
             } catch (err) {

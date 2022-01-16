@@ -9,7 +9,7 @@ export interface SongContent {
     title: string;
     thumbnail?: string;
     duration?: number;
-    lazy:boolean;
+    lazy: boolean;
 }
 export interface SongRequest {
     content: SongContent | Promise<SongContent>;
@@ -18,6 +18,7 @@ export interface SongRequest {
     link?: string;
 }
 export interface VoiceState {
+    paused: boolean;
     queue: SongRequest[];
     skippers: number;
     playing: boolean;

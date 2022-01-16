@@ -22,6 +22,7 @@ import {
 import { VoiceState } from '@util/state';
 import { GuildMember } from 'discord.js';
 import { hasUncaughtExceptionCaptureCallback } from 'process';
+import { start } from 'repl';
 const youtubeSearch = promisify(yts);
 
 export async function searchYTVideos(
@@ -105,6 +106,7 @@ export async function queueResource(
 
     //If length is 0, then resubscribe
     const startQueue = queue.length == 0 && !guildVoiceState.playing;
+    console.log(queue.length, !guildVoiceState.playing, startQueue);
     if (startQueue) {
         if (front) {
             queue.unshift(songRequest);
@@ -120,7 +122,7 @@ export async function queueResource(
         request.content = await request.content;
         let readableStream = request.content.lazy
             ? (request.content.resource as () => Readable)()
-            : request.content.resource as Readable;
+            : (request.content.resource as Readable);
         const resource = createAudioResource(readableStream, { inlineVolume: true });
         request.content.audioResource = resource;
         resource.volume.setVolume(guildVoiceState.volume);
@@ -128,22 +130,22 @@ export async function queueResource(
         player.on(AudioPlayerStatus.Playing, () => {
             guildVoiceState.nowPlaying = request;
             guildVoiceState.playing = true;
-            // callback();
+            console.log('NOW PLAYING');
         });
         player.on(AudioPlayerStatus.Buffering, (oldState, newState) => {
             console.log('BUFFERING ');
         });
         player.on(AudioPlayerStatus.Idle, async () => {
             guildVoiceState.nowPlaying = null;
-            guildVoiceState.playing = null;
-
+            guildVoiceState.playing = false;
+            console.log('IDLING', queue.length);
             if (queue.length > 0) {
                 //There is more. Get top of queue.
                 request = queue.shift();
                 request.content = await request.content;
                 let readableStream = request.content.lazy
-                ? (request.content.resource as () => Readable)()
-                : request.content.resource as Readable;
+                    ? (request.content.resource as () => Readable)()
+                    : (request.content.resource as Readable);
                 const resource = createAudioResource(readableStream, {
                     inlineVolume: true,
                 });
@@ -153,7 +155,8 @@ export async function queueResource(
                 return;
             }
             setTimeout(function () {
-                if (queue.length == 0 && !guildVoiceState.playing) {
+                const vc = getVoiceConnection(songRequest.requester.guild.id);
+                if (queue.length == 0 && !guildVoiceState.playing && vc) {
                     voiceConnection.destroy();
                 }
             }, 15000);
@@ -174,7 +177,7 @@ export async function queueResource(
                 voiceConnection.destroy();
             }
         });
-
+        console.log('SUBSCRIBING');
         guildVoiceState.subscription = voiceConnection.subscribe(player);
     } else {
         if (front) {
