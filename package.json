@@ -5,8 +5,8 @@
   "description": "",
   "license": "MIT",
   "scripts": {
-    "prebuild": "rimraf dist",
-    "start": "tsc -p ./tsconfig.json && node ./dist/main.js",
+    "build": "tsc -p ./tsconfig.json && node ./dist/main.js",
+    "start": "ts-node src/main.ts",
     "dev:debug": "nodemon src/main.ts"
   },
   "dependencies": {
@@ -23,7 +23,8 @@
     "tsconfig-paths": "^3.12.0",
     "youtube-search": "^1.1.6",
     "ytdl": "^1.4.1",
-    "ytdl-core": "^4.10.0"
+    "ytdl-core": "^4.10.0",
+    "ytpl": "^2.2.3"
   },
   "devDependencies": {
     "@types/node": "^17.0.8",
