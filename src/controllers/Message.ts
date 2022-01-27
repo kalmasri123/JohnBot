@@ -1,12 +1,16 @@
 import { Command } from 'commands/Command';
 import Discord, { Guild } from 'discord.js';
-import { readdirSync } from 'fs';
+import { cp, readdirSync } from 'fs';
 import { join } from 'path';
 import { env } from '@util/env';
 import { nextTick } from 'process';
 
 const commandNames = readdirSync(join(__dirname, '../commands/')).filter(
-    (el) => el != 'Command.js' && el.endsWith('.js')
+    (el) => {
+        console.log(el)
+        const extension = process.env.ENV == "DEBUG" ? ".ts":".js"
+        return el != `Command${extension}` && el.endsWith(extension)
+    }
 );
 const commands = {};
 const messageQueue = {};
@@ -54,6 +58,7 @@ async function handleMessage(guild: Guild) {
 }
 
 export default async function Message(message: Discord.Message) {
+    console.log(message.content)
     if (!messageQueue[message.guild.id])
         messageQueue[message.guild.id] = { queue: [], handlingMessage: false };
 

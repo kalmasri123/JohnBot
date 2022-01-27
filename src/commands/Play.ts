@@ -27,6 +27,7 @@ class PlayCommand extends Command {
     @CreateVoiceStateIfNotExists()
     @RequiresSameVoiceChannel()
     async executeFunction(message: Message, fn: () => void = null) {
+        console.log("Executing")
         super.executeFunction(message, fn);
         let link = this.args[1];
         if (!linkRegex.test(link)) {
