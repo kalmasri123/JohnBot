@@ -13,7 +13,14 @@ export default async function PresenceUpdate(oldPresence: Presence, newPresence:
                 .filter((el) => el.type == 'GUILD_TEXT')
                 .first() as TextChannel
         ).send(`NOOB STOP PLAYING LEAGUE OF LEGENDS <@${oldPresence.user.id}> `);
+        if (newPresence.member.voice) {
+            newPresence.member.voice.setMute(true, 'League player');
+        }
+    } else if (!isPlayingLeague && wasPlayingLeague) {
+        if (newPresence.member.voice) {
+            newPresence.member.voice.setMute(false);
+        }
     }
-    console.log(isPlayingLeague, wasPlayingLeague);
 
+    console.log(isPlayingLeague, wasPlayingLeague);
 }
