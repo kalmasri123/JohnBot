@@ -1,7 +1,7 @@
 import 'module-alias/register';
 
 import { env } from '@util/env';
-import PresenceUpdate from 'controllers/PresenceUpdate';
+import PresenceUpdate from './controllers/PresenceUpdate';
 import { Client, Intents } from 'discord.js';
 import Message from './controllers/Message';
 try {
