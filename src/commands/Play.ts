@@ -27,13 +27,17 @@ class PlayCommand extends Command {
     @CreateVoiceStateIfNotExists()
     @RequiresSameVoiceChannel()
     async executeFunction(message: Message, fn: () => void = null) {
-        console.log("Executing")
+        console.log('Executing');
         super.executeFunction(message, fn);
         let link = this.args[1];
         if (!linkRegex.test(link)) {
-            const searchQuery = this.args.slice(1).join(' ');
-            const searchResults = await searchYTVideos(searchQuery, 1);
-            link = searchResults[0]?.link;
+            try {
+                const searchQuery = this.args.slice(1).join(' ');
+                const searchResults = await searchYTVideos(searchQuery, 1);
+                link = searchResults[0]?.link;
+            } catch (err) {
+                return this.message.reply('Unable to search. Please try again.');
+            }
             // return this.message.reply('Please enter a link!');
         }
         const isPlaylist = ytpl.validateID(link);
