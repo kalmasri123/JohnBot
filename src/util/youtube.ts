@@ -27,7 +27,7 @@ const youtubeSearch = promisify(yts);
 
 export async function searchYTVideos(
     searchCriteria: string,
-    maxResults = 1,
+    maxResults = 10,
 ): Promise<yts.YouTubeSearchResults[]> {
     const opts: YouTubeSearchOptions = {
         maxResults,
