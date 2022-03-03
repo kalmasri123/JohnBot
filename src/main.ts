@@ -4,6 +4,7 @@ import { env } from '@util/env';
 import PresenceUpdate from './controllers/PresenceUpdate';
 import { Client, Intents } from 'discord.js';
 import Message from './controllers/Message';
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 try {
     const client: Client = new Client({
         intents: [
@@ -24,13 +25,13 @@ try {
         'age of empires ii (2013)',
         'age of empires iv',
     ];
-    client.on('ready', () => {
+    client.on('ready', async () => {
         console.log('BOT IS READY');
-        let i = 0;
         setInterval(function () {
-            client.user.setActivity({ type: 'PLAYING', name: GAMES_TO_PLAY[i] });
-            i = (i + 1) % GAMES_TO_PLAY.length;
-        }, 2000);
+            for(let i = 0; i < GAMES_TO_PLAY.length; i++){
+                client.user.setActivity({ type: 'PLAYING', name: GAMES_TO_PLAY[i] });
+            }
+        }, 1000 * 60 * 60 * 24);
     });
     client.login(env.BOT_TOKEN);
     client.on('messageCreate', Message);
