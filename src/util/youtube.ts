@@ -33,7 +33,9 @@ export async function searchYTVideos(
         maxResults,
         key: env.YT_API_KEY,
     };
-    return (await youtubeSearch(searchCriteria, opts)).filter(
+    let results = (await youtubeSearch(searchCriteria, opts))
+    console.log(results.map(({kind})=>kind))
+    return results.filter(
         ({ kind }) => kind == 'youtube#video',
     );
 }
@@ -49,6 +51,7 @@ export async function cacheYoutubeData({ title, thumbnail, lengthSeconds, ytID }
     }
 }
 export async function getYoutubeVideo(link: string, { seek }, lazy = false) {
+    console.log("LINK",link)
     const ytID = ytdl.getVideoID(link);
     let [title, thumbnail, lengthSeconds] = await Promise.all([
         get(`title_${ytID}`),

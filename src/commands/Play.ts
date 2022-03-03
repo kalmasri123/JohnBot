@@ -31,9 +31,13 @@ class PlayCommand extends Command {
         super.executeFunction(message, fn);
         let link = this.args[1];
         if (!linkRegex.test(link)) {
+            console.log("IS NOT LINK")
             try {
                 const searchQuery = this.args.slice(1).join(' ');
-                const searchResults = await searchYTVideos(searchQuery, 1);
+                const searchResults = await searchYTVideos(searchQuery, 5);
+                if(searchResults.length == 0) return message.reply("Video not found")
+                console.log(searchResults)
+
                 link = searchResults[0]?.link;
             } catch (err) {
                 return this.message.reply('Unable to search. Please try again.');
