@@ -18,8 +18,19 @@ try {
             status: 'idle',
         },
     });
+    const GAMES_TO_PLAY = [
+        'dota 2',
+        'age of empires ii: definitive edition',
+        'age of empires ii (2013)',
+        'age of empires iv',
+    ];
     client.on('ready', () => {
         console.log('BOT IS READY');
+        let i = 0;
+        setInterval(function () {
+            client.user.setActivity({ type: 'PLAYING', name: GAMES_TO_PLAY[i] });
+            i = (i + 1) % GAMES_TO_PLAY.length;
+        }, 2000);
     });
     client.login(env.BOT_TOKEN);
     client.on('messageCreate', Message);
