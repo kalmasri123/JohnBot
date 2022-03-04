@@ -1,5 +1,6 @@
 import { AudioResource, PlayerSubscription } from '@discordjs/voice';
-import { Guild, GuildMember } from 'discord.js';
+import { Command } from 'commands/Command';
+import { Guild, GuildMember, Message } from 'discord.js';
 import { Readable, Transform } from 'stream';
 
 //key=guildid.value = VoiceState
@@ -26,5 +27,17 @@ export interface VoiceState {
     volume: number;
     subscription: PlayerSubscription;
 }
-
+export interface FollowupCommand {
+    callback: (message: Message) => any;
+    data: any;
+    originalMessage: Message;
+}
+export function createVoiceState(guildId) {
+    voiceState[guildId] = {
+        queue: [],
+        playing: false,
+        volume: 1,
+    };
+}
+export const messageState: { [key: string]: { [key: string]: FollowupCommand } } = {};
 export const voiceState = {};

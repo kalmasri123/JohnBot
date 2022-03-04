@@ -1,7 +1,7 @@
 import { getVoiceConnection } from '@discordjs/voice';
 import { Command } from 'commands/Command';
 import { Message } from 'discord.js';
-import { voiceState } from './state';
+import { messageState, voiceState } from './state';
 
 export function RequiresSameVoiceChannel() {
     return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
@@ -35,6 +35,22 @@ export function CreateVoiceStateIfNotExists() {
                     playing: false,
                     volume: 1,
                 };
+            }
+            return oldMethod.apply(this, args);
+        };
+        return descriptor;
+        // Do something
+    };
+}
+
+export function CreateMessageStateIfNotExists() {
+    return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
+        const oldMethod = descriptor.value;
+
+        descriptor.value = function (...args) {
+            const guildId = args[0].guild.id;
+            if (!messageState[guildId]) {
+                messageState[guildId] = {};
             }
             return oldMethod.apply(this, args);
         };

@@ -4,14 +4,13 @@ import { cp, readdirSync } from 'fs';
 import { join } from 'path';
 import { env } from '@util/env';
 import { nextTick } from 'process';
+import { messageState } from '@util/state';
 
-const commandNames = readdirSync(join(__dirname, '../commands/')).filter(
-    (el) => {
-        console.log(el)
-        const extension = process.env.ENV == "DEBUG" ? ".ts":".js"
-        return el != `Command${extension}` && el.endsWith(extension)
-    }
-);
+const commandNames = readdirSync(join(__dirname, '../commands/')).filter((el) => {
+    console.log(el);
+    const extension = process.env.ENV == 'DEBUG' ? '.ts' : '.js';
+    return el != `Command${extension}` && el.endsWith(extension);
+});
 const commands = {};
 const messageQueue = {};
 commandNames.map(async (commandName) => {
@@ -35,12 +34,35 @@ async function handleMessage(guild: Guild) {
     messageQueue[guild.id].handlingMessage = true;
     const prefix = message.content.charAt(0);
     if (message.author.bot) return next();
-    if (prefix != env.PREFIX) return next();
+    // if (prefix != env.PREFIX) return next();
     //Identify if command
     const args = message.content.split(' ');
     const commandName = args[0].slice(1);
     const command: Command = commands[commandName] ? commands[commandName] : null;
-    if (!command) return next();
+    if (!command) {
+        try {
+            let followUpMessage = messageState[guild.id][message.member.id];
+            console.log(messageState);
+            if (followUpMessage) {
+                let res = await followUpMessage.callback(message);
+                if (res) {
+                    delete messageState[guild.id][message.member.id];
+                }
+                if (!resolved) {
+                    return next();
+                }
+            } else {
+                return next();
+            }
+        } catch (err) {
+            if (!resolved) {
+                console.log(err);
+                message.reply('An Unexpected error has occurred');
+                next();
+            }
+        }
+        return next();
+    }
     try {
         await command.executeFunction(message, next);
         if (!resolved) {
@@ -49,8 +71,8 @@ async function handleMessage(guild: Guild) {
         return;
     } catch (err) {
         if (!resolved) {
-            console.log(err)
-            message.reply("An Unexpected error has occurred")
+            console.log(err);
+            message.reply('An Unexpected error has occurred');
             next();
         }
     }
@@ -58,7 +80,7 @@ async function handleMessage(guild: Guild) {
 }
 
 export default async function Message(message: Discord.Message) {
-    console.log(message.content)
+    console.log(message.content);
     if (!messageQueue[message.guild.id])
         messageQueue[message.guild.id] = { queue: [], handlingMessage: false };
 
