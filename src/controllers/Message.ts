@@ -1,5 +1,5 @@
 import { Command } from 'commands/Command';
-import Discord, { Guild } from 'discord.js';
+import Discord, { Guild, GuildStickerManager } from 'discord.js';
 import { cp, readdirSync } from 'fs';
 import { join } from 'path';
 import { env } from '@util/env';
@@ -19,6 +19,9 @@ commandNames.map(async (commandName) => {
 });
 
 async function handleMessage(guild: Guild) {
+    if (!messageState[guild.id]) {
+        messageState[guild.id] = {};
+    }
     if (messageQueue[guild.id].queue.length == 0) {
         messageQueue[guild.id].handlingMessage = false;
         return;
