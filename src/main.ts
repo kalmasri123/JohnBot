@@ -27,6 +27,7 @@ try {
     ];
     client.on('ready', async () => {
         console.log('BOT IS READY');
+        
         client.user.setActivity(null)
         setInterval(function () {
             for(let i = 0; i < GAMES_TO_PLAY.length; i++){
