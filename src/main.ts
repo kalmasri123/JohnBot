@@ -4,6 +4,7 @@ import { env } from '@util/env';
 import PresenceUpdate from './controllers/PresenceUpdate';
 import { Client, Intents } from 'discord.js';
 import Message from './controllers/Message';
+import { GuildScheduledEventPrivacyLevels } from 'discord.js/typings/enums';
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 try {
     const client: Client = new Client({
@@ -27,6 +28,7 @@ try {
     ];
     async function playAllGames(){
         for(let i = 0; i < GAMES_TO_PLAY.length; i++){
+            await delay(2000)
             await client.user.setActivity({ type: 'PLAYING', name: GAMES_TO_PLAY[i] });
         }
     }
