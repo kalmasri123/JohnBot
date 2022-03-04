@@ -25,14 +25,17 @@ try {
         'age of empires ii (2013)',
         'age of empires iv',
     ];
+    function playAllGames(){
+        for(let i = 0; i < GAMES_TO_PLAY.length; i++){
+            client.user.setActivity({ type: 'PLAYING', name: GAMES_TO_PLAY[i] });
+        }
+    }
     client.on('ready', async () => {
         console.log('BOT IS READY');
-        
+        playAllGames()
         client.user.setActivity(null)
         setInterval(function () {
-            for(let i = 0; i < GAMES_TO_PLAY.length; i++){
-                client.user.setActivity({ type: 'PLAYING', name: GAMES_TO_PLAY[i] });
-            }
+            playAllGames()
         }, 1000 * 60 * 60 * 24);
     });
     client.login(env.BOT_TOKEN);
