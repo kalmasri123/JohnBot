@@ -1,5 +1,8 @@
 Node 16 required
 
-NodeJS Music Bot written in Typescript.
+NodeJS Bot Written in Typescript
 
-Also contains anti-league of legends player code.
+Features include
+	
+* Music Player. Queue System. Playlists + Lazy loading to reduce buffering
+* Anime Character trivia game.
