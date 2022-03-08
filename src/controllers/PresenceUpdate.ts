@@ -2,8 +2,10 @@ import { Presence, TextChannel } from 'discord.js';
 const playingLeague = (el) => el.name.toLowerCase() == `league of legends` && el.type == 'PLAYING';
 const findRole = (el) => el.name.toLowerCase() == 'league player';
 export default async function PresenceUpdate(oldPresence: Presence, newPresence: Presence) {
-    const wasPlayingLeague = oldPresence.activities.find(playingLeague);
-    const isPlayingLeague = newPresence.activities.find(playingLeague);
+    if(!oldPresence || !newPresence) return;
+    const wasPlayingLeague = oldPresence?.activities.find(playingLeague);
+    const isPlayingLeague = newPresence?.activities.find(playingLeague);
+    
     const leaguePlayerRole = newPresence.member.guild.roles.cache.find(findRole);
     const member = newPresence.member;
     if (isPlayingLeague && !wasPlayingLeague) {

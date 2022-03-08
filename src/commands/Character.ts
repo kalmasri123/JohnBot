@@ -15,20 +15,7 @@ class SearchCommand extends Command {
     @CreateMessageStateIfNotExists()
     async executeFunction(message: Message<boolean>, fn: () => void): Promise<void> {
         super.executeFunction(message, fn);
-        if (this.args.length > 1) {
-            switch (this.args[1]) {
-                case 'end':
-                    let oldState = messageState[this.guild.id][message.author.id];
-                    if (deleteMessageState(this.guild.id, message.author.id, 'character')) {
-                        message.reply(
-                            `Successfully Ended\nThe correct Character is ${oldState.data.character.fullName} from ${oldState.data.character.origin}`,
-                        );
-                        return;
-                    }
-                    message.reply("We're not playing anything noob");
-                    return;
-            }
-        }
+
         const page = getRandomInt(0, 10);
         try {
             let characterList = await getCharacters(page);
@@ -45,6 +32,16 @@ class SearchCommand extends Command {
 
             async function callback(message: Message, fn: () => void = null) {
                 if (message.author != this.originalMessage.author) return;
+                switch(message.content.trim().toLowerCase()){
+                    case "end":
+                        if (deleteMessageState(message.guild.id, message.author.id, 'character')) {
+                            message.reply(
+                                `Successfully Ended\nThe correct Character is ${this.data.character.fullName} ${this.data.character.origin? `from **${this.data.character.origin}**`:""}`,
+                            );
+                            return;
+                        }
+                        break;
+                }
                 let isMatch = character.names.some(
                     (el) =>
                         el &&
@@ -57,7 +54,7 @@ class SearchCommand extends Command {
                     this.data.tries--;
                     if (this.data.tries == 0) {
                         message.reply(
-                            `No more tries!\nCorrect Name was ${character.fullName} from ${character.origin}`,
+                            `No more tries!\nCorrect Name was ${character.fullName} ${this.data.character.origin? `from **${this.data.character.origin}**`:""}`,
                         );
                         return true;
                     }
@@ -66,7 +63,7 @@ class SearchCommand extends Command {
                     return false;
                 }
                 message.reply(
-                    `Correct!\nThe character's name was ${character.fullName} from **${character.origin}**`,
+                    `Correct!\nThe character's name was ${character.fullName} ${this.data.character.origin? `from **${this.data.character.origin}**`:""}`,
                 );
                 return true;
             }
