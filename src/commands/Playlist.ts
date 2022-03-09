@@ -13,7 +13,7 @@ class PlaylistCommand extends Command {
     async executeFunction(message: Message, fn: () => void = null) {
         super.executeFunction(message, fn);
         const guildVoiceState: VoiceState = voiceState[this.guild.id];
-        const queue = await Promise.all(guildVoiceState.queue.map((el) => el.content));
+        const queue = (await Promise.all(guildVoiceState.queue.map((el) => el.content))).slice(0, 20);
         const nowPlaying = await guildVoiceState.nowPlaying?.content;
         if (queue.length == 0 && !nowPlaying) return message.reply('Nothing is playing!');
         const playlistEmbed = new MessageEmbed()
