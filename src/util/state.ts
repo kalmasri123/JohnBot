@@ -1,4 +1,9 @@
-import { AudioResource, PlayerSubscription } from '@discordjs/voice';
+import {
+    AudioReceiveStream,
+    AudioResource,
+    PlayerSubscription,
+    VoiceReceiver,
+} from '@discordjs/voice';
 import { Command } from 'commands/Command';
 import { Guild, GuildMember, Message } from 'discord.js';
 import { Readable, Transform } from 'stream';
@@ -19,6 +24,9 @@ export interface SongRequest {
     requester?: GuildMember;
     link?: string;
 }
+export interface VoiceCommandState {
+    members: { [key: string]: { packets: AudioReceiveStream; time: number } };
+}
 export interface VoiceState {
     paused: boolean;
     queue: SongRequest[];
@@ -32,7 +40,7 @@ export interface FollowupCommand {
     callback: (message: Message) => any;
     data: any;
     originalMessage: Message;
-    tag?:string;
+    tag?: string;
 }
 export function createVoiceState(guildId) {
     voiceState[guildId] = {
@@ -42,8 +50,8 @@ export function createVoiceState(guildId) {
     };
 }
 export function deleteMessageState(guildId, authorId, tag = null) {
-    console.log(messageState[guildId][authorId])
-    
+    console.log(messageState[guildId][authorId]);
+
     if (
         messageState[guildId] &&
         messageState[guildId][authorId] &&
@@ -56,3 +64,4 @@ export function deleteMessageState(guildId, authorId, tag = null) {
 } //Guild - Author - Tag
 export const messageState: { [key: string]: { [key: string]: FollowupCommand } } = {};
 export const voiceState = {};
+export const voiceCommandState: { [key: string]: VoiceCommandState } = {};

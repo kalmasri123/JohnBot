@@ -26,6 +26,7 @@ class SeekCommand extends Command {
 
         if (seconds < 0 || seconds > (await guildVoiceState.nowPlaying.content).duration)
             return message.reply('Please enter a number within range!');
+        console.log();
         const audio = getYoutubeVideo(guildVoiceState.nowPlaying.link, { seek: seconds });
         // const resource = createAudioResource(audio.audio);
         const request: SongRequest = {
@@ -35,9 +36,12 @@ class SeekCommand extends Command {
         };
         // audio.then(({ audio, title }) => {
         queueResource(request, voiceConnection, fn, true).then(async () => {
-            const resource = (await guildVoiceState.nowPlaying.content).resource;
-            (resource as any).end();
+            console.log('queued');
+            const content = await guildVoiceState.nowPlaying.content;
+            (content.resource as any).end();
+            console.log('ended');
             guildVoiceState.subscription.player.stop();
+            console.log('stopped');
         });
     }
 }

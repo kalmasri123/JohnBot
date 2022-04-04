@@ -5,8 +5,6 @@ import { YouTubeSearchOptions } from 'youtube-search';
 import * as ytdl from 'ytdl-core';
 import { del, get, hGet, hSet, set } from '@util/redis';
 import { PassThrough, Readable, Transform } from 'stream';
-import { read } from 'fs';
-import { writeFileSync } from 'fs';
 import * as ffmpeg from 'fluent-ffmpeg';
 import { SongContent, SongRequest, voiceState } from './state';
 import {
@@ -20,11 +18,7 @@ import {
     VoiceConnectionStatus,
 } from '@discordjs/voice';
 import { VoiceState } from '@util/state';
-import { GuildMember } from 'discord.js';
-import { hasUncaughtExceptionCaptureCallback } from 'process';
-import { start } from 'repl';
 const youtubeSearch = promisify(yts);
-
 export async function searchYTVideos(
     searchCriteria: string,
     maxResults = 10,
@@ -33,11 +27,9 @@ export async function searchYTVideos(
         maxResults,
         key: env.YT_API_KEY,
     };
-    let results = (await youtubeSearch(searchCriteria, opts))
-    console.log(results.map(({kind})=>kind))
-    return results.filter(
-        ({ kind }) => kind == 'youtube#video',
-    );
+    let results = await youtubeSearch(searchCriteria, opts);
+    console.log(results.map(({ kind }) => kind));
+    return results.filter(({ kind }) => kind == 'youtube#video');
 }
 export async function cacheYoutubeData({ title, thumbnail, lengthSeconds, ytID }) {
     try {
@@ -51,7 +43,8 @@ export async function cacheYoutubeData({ title, thumbnail, lengthSeconds, ytID }
     }
 }
 export async function getYoutubeVideo(link: string, { seek }, lazy = false) {
-    console.log("LINK",link)
+    console.log('LINK', link);
+    // seek = 10;
     const ytID = ytdl.getVideoID(link);
     let [title, thumbnail, lengthSeconds] = await Promise.all([
         get(`title_${ytID}`),
@@ -81,16 +74,19 @@ export async function getYoutubeVideo(link: string, { seek }, lazy = false) {
         let resource: any = audio;
         if (seek > 0) {
             try {
+                console.log(audio.readableLength);
                 resource = ffmpeg(audio)
                     .seekInput(seek)
                     .format('mp3')
                     .stream(null)
-                    .on('error', (err) => console.log(err));
+                    .on('error', (err) => console.log('ERROR THROWN', err));
             } catch (err) {
-                console.log(err);
+                console.log("ERROR CAUGHT",err);
             }
         }
-        content.resource = resource;
+        if (lazy) {
+            content.resource = resource;
+        }
         return resource;
     }
 
@@ -141,18 +137,26 @@ export async function queueResource(
         player.on(AudioPlayerStatus.Idle, async () => {
             guildVoiceState.nowPlaying = null;
             guildVoiceState.playing = false;
-            console.log('IDLING', queue.length);
+            // console.log('IDLING', queue.length);
+
             if (queue.length > 0) {
                 //There is more. Get top of queue.
                 request = queue.shift();
+                // if(++i==2) return;
+                // console.log("ITER",i)
+
                 request.content = await request.content;
+                console.log('RESOURCE');
+
                 let readableStream = request.content.lazy
                     ? (request.content.resource as () => Readable)()
                     : (request.content.resource as Readable);
+
                 const resource = createAudioResource(readableStream, {
                     inlineVolume: true,
                 });
                 request.content.audioResource = resource;
+
                 resource.volume.setVolume(guildVoiceState.volume);
                 player.play(resource);
                 return;
