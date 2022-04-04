@@ -3,6 +3,7 @@ import { Message } from 'discord.js';
 import { VoiceState, voiceState } from '@util/state';
 import { CreateVoiceStateIfNotExists } from '@util/decorators';
 import { getVoiceConnection } from '@discordjs/voice';
+import stopAction from 'actions/stop';
 class StopCommand extends Command {
     constructor() {
         super({
@@ -10,25 +11,10 @@ class StopCommand extends Command {
             commandName: 'stop',
         });
     }
-    @CreateVoiceStateIfNotExists()
+    // @CreateVoiceStateIfNotExists()
     async executeFunction(message: Message, fn: () => void = null) {
         super.executeFunction(message, fn);
-        const guildVoiceState: VoiceState = voiceState[this.guild.id];
-        if (guildVoiceState.queue.length > 0 || guildVoiceState.playing) {
-
-            guildVoiceState.queue.length = 0;
-            const resource = (await guildVoiceState.nowPlaying.content).resource as any;
-            resource.end();
-            guildVoiceState.subscription.player.stop(true);
-            guildVoiceState.subscription.unsubscribe()
-
-            guildVoiceState.subscription = null;
-            const connection = getVoiceConnection(this.guild.id);
-            connection.destroy();
-            message.reply('Stopped!');
-        } else {
-            message.reply("I'm not playing anything");
-        }
+        stopAction(this)
         return;
     }
 }

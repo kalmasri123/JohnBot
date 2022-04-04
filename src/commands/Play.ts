@@ -10,8 +10,6 @@ class PlayCommand extends Command {
             commandName: 'play',
         });
     }
-    @CreateVoiceStateIfNotExists()
-    @RequiresSameVoiceChannel()
     async executeFunction(message: Message, fn: () => void = null) {
         super.executeFunction(message, fn);
         playAction(this, fn);

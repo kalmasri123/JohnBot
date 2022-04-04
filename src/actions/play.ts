@@ -4,12 +4,12 @@ import { MessageEmbed } from 'discord.js';
 import * as States from '@util/state';
 import * as ytpl from 'ytpl';
 
-import { ActionContext } from './types';
+import { Action, ActionContext } from './types';
+import { CreateVoiceStateIfNotExists, RequiresSameVoiceChannel } from '@util/decorators';
 const linkRegex =
     /http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?/;
 
-
-export default async function playAction(
+const playAction: Action = async function (
     { message, guild, args }: ActionContext,
     fn: () => void = null,
 ) {
@@ -31,7 +31,6 @@ export default async function playAction(
     let ytplResp;
 
     if (isPlaylist) {
-
         ytplResp = await ytpl(link, { limit: Infinity });
         ytplResp.items.map((el) => {
             links.push(el.shortUrl);
@@ -104,4 +103,9 @@ export default async function playAction(
             .setThumbnail(ytplResp.thumbnails[0].url);
         message.reply({ embeds: [songRequestEmbed] });
     }
-}
+};
+export const actionName = 'play';
+export const type = 'action';
+let decorated = CreateVoiceStateIfNotExists()(playAction);
+decorated = RequiresSameVoiceChannel()(decorated);
+export default decorated;

@@ -8,6 +8,7 @@ import { Command } from 'commands/Command';
 import { Guild, GuildMember, Message } from 'discord.js';
 import { Readable, Transform } from 'stream';
 import { isFunction } from 'util';
+import * as prism from 'prism-media';
 
 //key=guildid.value = VoiceState
 export interface SongContent {
@@ -25,7 +26,9 @@ export interface SongRequest {
     link?: string;
 }
 export interface VoiceCommandState {
-    members: { [key: string]: { packets: AudioReceiveStream; time: number } };
+    members: {
+        [key: string]: { packets: AudioReceiveStream; time: number; decoded: prism.opus.Decoder,arrBuffer:any[] };
+    };
 }
 export interface VoiceState {
     paused: boolean;

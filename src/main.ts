@@ -4,6 +4,7 @@ import { env } from '@util/env';
 import PresenceUpdate from './controllers/PresenceUpdate';
 import { Client, Intents } from 'discord.js';
 import Message from './controllers/Message';
+import '@util/actions'
 import { GuildScheduledEventPrivacyLevels } from 'discord.js/typings/enums';
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 try {

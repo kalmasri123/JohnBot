@@ -6,7 +6,7 @@ import * as ytdl from 'ytdl-core';
 import { del, get, hGet, hSet, set } from '@util/redis';
 import { PassThrough, Readable, Transform } from 'stream';
 import * as ffmpeg from 'fluent-ffmpeg';
-import { SongContent, SongRequest, voiceState } from './state';
+import { SongContent, SongRequest, voiceCommandState, voiceState } from './state';
 import {
     AudioPlayer,
     AudioPlayerStatus,
@@ -18,6 +18,7 @@ import {
     VoiceConnectionStatus,
 } from '@discordjs/voice';
 import { VoiceState } from '@util/state';
+import { VoiceConnectionDestroyedState } from '@discordjs/voice';
 const youtubeSearch = promisify(yts);
 export async function searchYTVideos(
     searchCriteria: string,
@@ -81,7 +82,7 @@ export async function getYoutubeVideo(link: string, { seek }, lazy = false) {
                     .stream(null)
                     .on('error', (err) => console.log('ERROR THROWN', err));
             } catch (err) {
-                console.log("ERROR CAUGHT",err);
+                console.log('ERROR CAUGHT', err);
             }
         }
         if (lazy) {
@@ -142,8 +143,6 @@ export async function queueResource(
             if (queue.length > 0) {
                 //There is more. Get top of queue.
                 request = queue.shift();
-                // if(++i==2) return;
-                // console.log("ITER",i)
 
                 request.content = await request.content;
                 console.log('RESOURCE');
@@ -163,7 +162,13 @@ export async function queueResource(
             }
             setTimeout(function () {
                 const vc = getVoiceConnection(songRequest.requester.guild.id);
-                if (queue.length == 0 && !guildVoiceState.playing && vc) {
+                if (
+                    queue.length == 0 &&
+                    !guildVoiceState.playing &&
+                    vc &&
+                    !voiceCommandState[songRequest.requester.guild.id] &&
+                    voiceConnection.state.status != VoiceConnectionStatus.Destroyed
+                ) {
                     voiceConnection.destroy();
                 }
             }, 15000);

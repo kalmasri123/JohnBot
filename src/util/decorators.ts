@@ -4,11 +4,12 @@ import { Message } from 'discord.js';
 import { messageState, voiceCommandState, voiceState } from './state';
 
 export function RequiresSameVoiceChannel() {
-    return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
-        const oldMethod = descriptor.value;
+    return function (descriptor) {
+        const oldMethod = descriptor;
 
-        descriptor.value = function (...args) {
-            const message = args[0];
+        descriptor = function (...args) {
+            const { message } = args[0];
+            console.log(message);
             const voiceConnection = getVoiceConnection(message.guild.id);
             const requesterVoiceChannel = message.member.voice.channelId;
             const botVoiceChannel = message.guild.me.voice.channelId;
@@ -24,10 +25,10 @@ export function RequiresSameVoiceChannel() {
 }
 
 export function CreateVoiceStateIfNotExists() {
-    return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
-        const oldMethod = descriptor.value;
+    return function (descriptor) {
+        const oldMethod = descriptor;
 
-        descriptor.value = function (...args) {
+        descriptor = function (...args) {
             const guildId = args[0].guild.id;
             if (!voiceState[guildId]) {
                 voiceState[guildId] = {
@@ -44,10 +45,10 @@ export function CreateVoiceStateIfNotExists() {
 }
 
 export function CreateVoiceCommandStateIfNotExists() {
-    return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
-        const oldMethod = descriptor.value;
+    return function (descriptor){
+        const oldMethod = descriptor;
 
-        descriptor.value = function (...args) {
+        descriptor = function (...args) {
             const guildId = args[0].guild.id;
             if (!voiceCommandState[guildId]) {
                 voiceCommandState[guildId] = { members: {} };
@@ -60,10 +61,10 @@ export function CreateVoiceCommandStateIfNotExists() {
 }
 
 export function CreateMessageStateIfNotExists() {
-    return function (target, propertyKey: string, descriptor: PropertyDescriptor) {
-        const oldMethod = descriptor.value;
+    return function (descriptor) {
+        const oldMethod = descriptor;
 
-        descriptor.value = function (...args) {
+        descriptor = function (...args) {
             const guildId = args[0].guild.id;
             if (!messageState[guildId]) {
                 messageState[guildId] = {};

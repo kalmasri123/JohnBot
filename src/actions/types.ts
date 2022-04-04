@@ -6,3 +6,4 @@ export interface ActionContext {
     guild:Guild,
     
 }
+export type Action = (context:ActionContext, fn: () => void) => void;
