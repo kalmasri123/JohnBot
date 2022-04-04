@@ -42,6 +42,8 @@
   },
   "_moduleAliases": {
     "@util": "dist/util",
-    "controllers": "controllers"
+    "controllers": "controllers",
+    "actions": "actions"
+
   }
 }
