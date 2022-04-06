@@ -46,8 +46,8 @@ const playAction: Action = async function (
     } else {
         links = [link];
     }
-    //If user is in a voice channel
-    //If bot is already in voice channel, check if user is in same channel. If they are, add song to queue.
+    // If user is in a voice channel
+    // If bot is already in voice channel, check if user is in same channel. If they are, add song to queue.
 
     let voiceConnection = getVoiceConnection(guild.id);
     const memberVoiceChannel = message.member.voice.channel;
@@ -76,11 +76,11 @@ const playAction: Action = async function (
             requester: message.member,
             link,
         };
-        let p = queueResource(request, voiceConnection, fn);
+        const p = queueResource(request, voiceConnection, fn);
         if (!isPlaylist) {
             p.then(async () => {
-                //Song Request Successful
-                //Respond with success message
+                // Song Request Successful
+                // Respond with success message
                 const content = await request.content;
                 const songRequestEmbed = new MessageEmbed()
                     .setColor('#FF0000')
@@ -101,7 +101,7 @@ const playAction: Action = async function (
 
             .setDescription(`[${ytplResp.title}](${link})\n\nRequester:<@${message.member.id}>`)
             .setThumbnail(ytplResp.thumbnails[0].url);
-        message.reply({ embeds: [songRequestEmbed] });
+        message.reply({ embeds: [songRequestEmbed]});
     }
 };
 export const actionName = 'play';
