@@ -29,8 +29,9 @@ try {
     ];
     async function playAllGames(){
         for(let i = 0; i < GAMES_TO_PLAY.length; i++){
-            await delay(60000 * 60)
             await client.user.setActivity({ type: 'PLAYING', name: GAMES_TO_PLAY[i] });
+            await delay(60000 * 60)
+
         }
     }
     client.on('ready', async () => {
