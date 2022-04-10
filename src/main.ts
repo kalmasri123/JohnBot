@@ -48,7 +48,7 @@ try {
 
         setInterval(function () {
             playAllGames();
-        }, 1000 * 60 * 60 * 24);
+        }, 1000 * 60 * 60 * 3.1);
     });
     client.login(env.BOT_TOKEN);
     client.on('messageCreate', Message);
