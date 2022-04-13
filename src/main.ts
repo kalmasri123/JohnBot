@@ -4,7 +4,7 @@ import { env } from '@util/env';
 import PresenceUpdate from './controllers/PresenceUpdate';
 import MessageEvent from './controllers/Message';
 
-import { Client, Intents, Message } from 'discord.js';
+import { Client, Intents, Message, MessageSelectMenu } from 'discord.js';
 import '@util/actions';
 import { get, set } from '@util/redis';
 import { GuildScheduledEventPrivacyLevels } from 'discord.js/typings/enums';
@@ -35,12 +35,15 @@ try {
     async function playAllGames() {
         for (let i = 0; i < GAMES_TO_PLAY.length; i++) {
             await client.user.setActivity({ type: 'PLAYING', name: GAMES_TO_PLAY[i].game });
-            console.log("current delay time",10 * 1000 * 60 + parseInt((await get("presenceChangeLimit"))||0))
+            console.log(
+                'current delay time',
+                10 * 1000 * 60 + parseInt((await get('presenceChangeLimit')) || 0),
+            );
             await delay(GAMES_TO_PLAY[i].minPlayTime + 25000);
             await delay(2000);
 
             await client.user.setActivity(null);
-            await delay(10 * 1000 * 60 + parseInt(await get("presenceChangeLimit")));
+            await delay(10 * 1000 * 60 + parseInt(await get('presenceChangeLimit')));
         }
     }
     client.on('ready', async () => {
@@ -58,11 +61,12 @@ try {
         //Will handle dealing with rate limit
         if (
             message.author.id == '855651612197257237' &&
-            message.mentions.members.has(client.user.id)
+            message.mentions.members.has(client.user.id) &&
+            message.content.includes('SUSPICIOUS')
         ) {
             console.log('MENTIONS ME');
             //increase cooldown by a minute
-            await set('presenceChangeLimit', ((await get('presenceChangeLimit'))||0) + 60000);
+            await set('presenceChangeLimit', ((await get('presenceChangeLimit')) || 0) + 60000);
         }
     });
     client.on('messageCreate', MessageEvent);
