@@ -1,10 +1,12 @@
-import 'module-alias/register';
+// import 'module-alias/register';
 
 import { env } from '@util/env';
 import PresenceUpdate from './controllers/PresenceUpdate';
-import { Client, Intents } from 'discord.js';
-import Message from './controllers/Message';
+import MessageEvent from './controllers/Message';
+
+import { Client, Intents, Message } from 'discord.js';
 import '@util/actions';
+import { get, set } from '@util/redis';
 import { GuildScheduledEventPrivacyLevels } from 'discord.js/typings/enums';
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 try {
@@ -33,17 +35,18 @@ try {
     async function playAllGames() {
         for (let i = 0; i < GAMES_TO_PLAY.length; i++) {
             await client.user.setActivity({ type: 'PLAYING', name: GAMES_TO_PLAY[i].game });
+            console.log("current delay time",10 * 1000 * 60 + parseInt((await get("presenceChangeLimit"))||0))
             await delay(GAMES_TO_PLAY[i].minPlayTime + 25000);
             await delay(2000);
-            
-            await client.user.setActivity(null);
-            await delay(10000);
 
+            await client.user.setActivity(null);
+            await delay(10 * 1000 * 60 + parseInt(await get("presenceChangeLimit")));
         }
     }
     client.on('ready', async () => {
         console.log('BOT IS READY');
         await client.user.setActivity(null);
+        await client.user.setPresence({ status: 'online' });
         playAllGames();
 
         setInterval(function () {
@@ -51,7 +54,18 @@ try {
         }, 1000 * 60 * 60 * 3.1);
     });
     client.login(env.BOT_TOKEN);
-    client.on('messageCreate', Message);
+    client.on('messageCreate', async (message: Message) => {
+        //Will handle dealing with rate limit
+        if (
+            message.author.id == '855651612197257237' &&
+            message.mentions.members.has(client.user.id)
+        ) {
+            console.log('MENTIONS ME');
+            //increase cooldown by a minute
+            await set('presenceChangeLimit', ((await get('presenceChangeLimit'))||0) + 60000);
+        }
+    });
+    client.on('messageCreate', MessageEvent);
     client.on('presenceUpdate', PresenceUpdate);
 } catch (err) {
     console.log(err);
