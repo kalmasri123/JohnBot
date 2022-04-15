@@ -66,7 +66,7 @@ try {
         ) {
             console.log('MENTIONS ME');
             //increase cooldown by a minute
-            await set('presenceChangeLimit', ((await get('presenceChangeLimit')) || 0) + 60000);
+            await set('presenceChangeLimit', parseInt((await get('presenceChangeLimit')) || 0) + 60000);
         }
     });
     client.on('messageCreate', MessageEvent);
