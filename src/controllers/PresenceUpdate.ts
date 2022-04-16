@@ -3,6 +3,7 @@ const playingLeague = (el) => el.name.toLowerCase() == `league of legends` && el
 const findRole = (el) => el.name.toLowerCase() == 'league player';
 export default async function PresenceUpdate(oldPresence: Presence, newPresence: Presence) {
     if(!oldPresence || !newPresence) return;
+    console.log(newPresence)
     const wasPlayingLeague = oldPresence?.activities.find(playingLeague);
     const isPlayingLeague = newPresence?.activities.find(playingLeague);
     
