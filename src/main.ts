@@ -44,7 +44,7 @@ try {
         await client.user.setPresence({ status: 'online' });
         //Create Scheduled events
         await createImportantEvent();
-        setInterval(async function () {}, 60000 * 10);
+        setInterval(createImportantEvent, 1000 * 60 * 60 * 24);
     });
     client.login(env.BOT_TOKEN);
 
