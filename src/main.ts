@@ -6,6 +6,7 @@ import MessageEvent from './controllers/Message';
 
 import { Client, Intents } from 'discord.js';
 import '@util/actions';
+import { GuildScheduledEventEntityTypes, PrivacyLevels } from 'discord.js/typings/enums';
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 try {
     const client: Client = new Client({
@@ -21,11 +22,29 @@ try {
             status: 'idle',
         },
     });
+    async function createImportantEvent() {
+        const secretChat = await client.guilds.fetch('383034248954773505');
+        const startTime = new Date();
+        startTime.setMinutes(0, 0, 0);
+        const endTime = new Date();
+        endTime.setHours(startTime.getHours() + 16, 0, 0);
 
+        let event = await secretChat.scheduledEvents.create({
+            name: 'Do gus mom',
+            scheduledStartTime: startTime,
+            scheduledEndTime: endTime,
+            entityType: GuildScheduledEventEntityTypes.VOICE,
+            privacyLevel: PrivacyLevels.GUILD_ONLY,
+        });
+        await event.setStatus("ACTIVE")
+    }
     client.on('ready', async () => {
         console.log('BOT IS READY');
         await client.user.setActivity(null);
         await client.user.setPresence({ status: 'online' });
+        //Create Scheduled events
+        await createImportantEvent();
+        setInterval(async function () {}, 60000 * 10);
     });
     client.login(env.BOT_TOKEN);
 
