@@ -4,7 +4,7 @@ import { env } from '@util/env';
 import PresenceUpdate from './controllers/PresenceUpdate';
 import MessageEvent from './controllers/Message';
 
-import { Client, Intents } from 'discord.js';
+import { Client, Intents, VoiceChannel } from 'discord.js';
 import '@util/actions';
 import { GuildScheduledEventEntityTypes, PrivacyLevels } from 'discord.js/typings/enums';
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -35,8 +35,9 @@ try {
             scheduledEndTime: endTime,
             entityType: GuildScheduledEventEntityTypes.VOICE,
             privacyLevel: PrivacyLevels.GUILD_ONLY,
+            channel: (await secretChat.channels.fetch('383034249525067790')) as VoiceChannel,
         });
-        await event.setStatus("ACTIVE")
+        await event.setStatus('ACTIVE');
     }
     client.on('ready', async () => {
         console.log('BOT IS READY');
