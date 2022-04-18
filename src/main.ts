@@ -25,7 +25,7 @@ try {
     async function createImportantEvent() {
         const secretChat = await client.guilds.fetch('383034248954773505');
         const startTime = new Date();
-        startTime.setMinutes(0, 0, 0);
+        startTime.setHours(startTime.getHours() + 1, 0, 0, 0);
         const endTime = new Date();
         endTime.setHours(startTime.getHours() + 16, 0, 0);
 
