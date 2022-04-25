@@ -32,12 +32,13 @@ try {
         let event = await secretChat.scheduledEvents.create({
             name: 'Do gus mom',
             scheduledStartTime: startTime,
-            scheduledEndTime: endTime,
             entityType: GuildScheduledEventEntityTypes.VOICE,
             privacyLevel: PrivacyLevels.GUILD_ONLY,
             channel: (await secretChat.channels.fetch('383034249525067790')) as VoiceChannel,
         });
         await event.setStatus('ACTIVE');
+        await delay(endTime.getDate() - startTime.getDate());
+        await event.setStatus('COMPLETED');
     }
     client.on('ready', async () => {
         console.log('BOT IS READY');
