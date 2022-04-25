@@ -37,7 +37,7 @@ try {
             channel: (await secretChat.channels.fetch('383034249525067790')) as VoiceChannel,
         });
         await event.setStatus('ACTIVE');
-        await delay(endTime.getDate() - startTime.getDate());
+        await delay(endTime.getTime() - startTime.getTime());
         await event.setStatus('COMPLETED');
     }
     client.on('ready', async () => {
