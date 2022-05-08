@@ -38,7 +38,9 @@ try {
         });
         await event.setStatus('ACTIVE');
         await delay(16 * 1000 * 60 * 60);
-        await event.setStatus('COMPLETED');
+        if (event.status != 'COMPLETED' && event.status != 'CANCELED') {
+            await event.setStatus('COMPLETED');
+        }
     }
     client.on('ready', async () => {
         console.log('BOT IS READY');
