@@ -37,7 +37,7 @@ try {
             channel: (await secretChat.channels.fetch('383034249525067790')) as VoiceChannel,
         });
         await event.setStatus('ACTIVE');
-        await delay(16 * 1000 * 60 * 60);
+        await delay(8 * 1000 * 60 * 60);
         if (event.status != 'COMPLETED' && event.status != 'CANCELED') {
             await event.setStatus('COMPLETED');
         }
@@ -48,7 +48,7 @@ try {
         await client.user.setPresence({ status: 'online' });
         //Create Scheduled events
         await createImportantEvent();
-        setInterval(createImportantEvent, 1000 * 60 * 60 * 24);
+        setInterval(createImportantEvent, 1000 * 60 * 60 * 16);
     });
     client.login(env.BOT_TOKEN);
 
