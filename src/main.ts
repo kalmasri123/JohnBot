@@ -26,8 +26,8 @@ try {
         const secretChat = await client.guilds.fetch('383034248954773505');
         const startTime = new Date();
         startTime.setHours(startTime.getHours() + 1, 0, 0, 0);
-        const endTime = new Date();
-        endTime.setHours(startTime.getHours() + 16, 0, 0);
+        // const endTime = new Date();
+        // endTime.setHours(startTime.getHours() + 8, 0, 0);
 
         let event = await secretChat.scheduledEvents.create({
             name: 'Do gus mom',
