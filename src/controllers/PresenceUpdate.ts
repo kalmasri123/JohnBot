@@ -13,7 +13,7 @@ export default async function PresenceUpdate(oldPresence: Presence, newPresence:
         (
             newPresence.member.guild.channels.cache
                 .filter((el) => el.type == 'GUILD_TEXT')
-                .first() as TextChannel
+                .find(el=>el.name=="x-æ-a-12") as TextChannel
         ).send(`NOOB STOP PLAYING LEAGUE OF LEGENDS <@${oldPresence.user.id}> `);
         if (leaguePlayerRole) {
             member.roles.add(leaguePlayerRole);
