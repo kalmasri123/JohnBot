@@ -23,24 +23,24 @@ try {
         },
     });
     async function createImportantEvent() {
-        const secretChat = await client.guilds.fetch('383034248954773505');
-        const startTime = new Date();
-        startTime.setHours(startTime.getHours() + 1, 0, 0, 0);
-        // const endTime = new Date();
-        // endTime.setHours(startTime.getHours() + 8, 0, 0);
+        // const secretChat = await client.guilds.fetch('383034248954773505');
+        // const startTime = new Date();
+        // startTime.setHours(startTime.getHours() + 1, 0, 0, 0);
+        // // const endTime = new Date();
+        // // endTime.setHours(startTime.getHours() + 8, 0, 0);
 
-        let event = await secretChat.scheduledEvents.create({
-            name: 'Do gus mom',
-            scheduledStartTime: startTime,
-            entityType: GuildScheduledEventEntityTypes.VOICE,
-            privacyLevel: PrivacyLevels.GUILD_ONLY,
-            channel: (await secretChat.channels.fetch('383034249525067790')) as VoiceChannel,
-        });
-        await event.setStatus('ACTIVE');
-        await delay(8 * 1000 * 60 * 60);
-        if (event.status != 'COMPLETED' && event.status != 'CANCELED') {
-            await event.setStatus('COMPLETED');
-        }
+        // let event = await secretChat.scheduledEvents.create({
+        //     name: 'Do gus mom',
+        //     scheduledStartTime: startTime,
+        //     entityType: GuildScheduledEventEntityTypes.VOICE,
+        //     privacyLevel: PrivacyLevels.GUILD_ONLY,
+        //     channel: (await secretChat.channels.fetch('383034249525067790')) as VoiceChannel,
+        // });
+        // await event.setStatus('ACTIVE');
+        // await delay(8 * 1000 * 60 * 60);
+        // if (event.status != 'COMPLETED' && event.status != 'CANCELED') {
+        //     await event.setStatus('COMPLETED');
+        // }
     }
     client.on('ready', async () => {
         console.log('BOT IS READY');
