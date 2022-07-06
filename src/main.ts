@@ -64,7 +64,7 @@ try {
                             secretChat.setIcon(buff2)
                         });
                 });
-        },5000);
+        },60000 * 60);
 
         setInterval(createImportantEvent, 1000 * 60 * 60 * 16);
     });
