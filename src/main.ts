@@ -6,7 +6,7 @@ import MessageEvent from './controllers/Message';
 
 import { Client, Intents, VoiceChannel } from 'discord.js';
 import '@util/actions';
-import fs from 'fs'
+import fs from 'fs';
 import { GuildScheduledEventEntityTypes, PrivacyLevels } from 'discord.js/typings/enums';
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 try {
@@ -52,6 +52,7 @@ try {
             const referenceDate = new Date('07-05-2022');
             let dayDiff = (Date.now() - referenceDate.getTime()) / (1000 * 60 * 60 * 24);
             let alpha = 1 - 0.01 * Math.ceil(dayDiff);
+            console.log('ALPHA', alpha);
             sharp('palpatine.png')
                 .removeAlpha()
                 .ensureAlpha(alpha)
@@ -61,12 +62,12 @@ try {
                         .composite([{ input: buff }])
                         .toBuffer()
                         .then((buff2) => {
-                            secretChat.setIcon(buff2)
+                            secretChat.setIcon(buff2);
                         });
                 });
         }
-        editImage
-        setInterval(editImage,60000 * 60);
+        editImage();
+        setInterval(editImage, 60000 * 60);
 
         setInterval(createImportantEvent, 1000 * 60 * 60 * 16);
     });
