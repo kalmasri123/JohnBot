@@ -51,7 +51,7 @@ try {
             const sharp = require('sharp');
             const referenceDate = new Date('07-05-2022');
             let dayDiff = (Date.now() - referenceDate.getTime()) / (1000 * 60 * 60 * 24);
-            let alpha = 1 - 0.01 * Math.ceil(dayDiff);
+            let alpha = 1 - (0.02 * Math.ceil(dayDiff));
             console.log('ALPHA', alpha);
             sharp('palpatine.png')
                 .removeAlpha()
