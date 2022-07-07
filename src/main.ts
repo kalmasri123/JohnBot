@@ -47,7 +47,7 @@ try {
         await client.user.setPresence({ status: 'online' });
         //Create Scheduled events
         const secretChat = await client.guilds.fetch('383034248954773505');
-        setInterval(function () {
+        function editImage() {
             const sharp = require('sharp');
             const referenceDate = new Date('07-05-2022');
             let dayDiff = (Date.now() - referenceDate.getTime()) / (1000 * 60 * 60 * 24);
@@ -64,7 +64,9 @@ try {
                             secretChat.setIcon(buff2)
                         });
                 });
-        },60000 * 60);
+        }
+        editImage
+        setInterval(editImage,60000 * 60);
 
         setInterval(createImportantEvent, 1000 * 60 * 60 * 16);
     });
