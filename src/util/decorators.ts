@@ -23,6 +23,26 @@ export function RequiresSameVoiceChannel() {
         // Do something
     };
 }
+export function ClearIfNoVoiceConnection() {
+    return function (descriptor) {
+        const oldMethod = descriptor;
+
+        descriptor = function (...args) {
+            const { message } = args[0];
+            console.log(message);
+            const voiceConnection = getVoiceConnection(message.guild.id);
+            if(!voiceConnection && voiceState[message.guild.id]){
+                voiceState[message.guild.id].nowPlaying = null;
+                voiceState[message.guild.id].playing = null;
+                voiceState[message.guild.id].queue = [];
+            }
+            return oldMethod.apply(this, args);
+        };
+        return descriptor;
+        // Do something
+    };
+}
+
 
 export function CreateVoiceStateIfNotExists() {
     return function (descriptor) {

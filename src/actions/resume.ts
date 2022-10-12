@@ -1,4 +1,4 @@
-import { CreateVoiceStateIfNotExists } from '@util/decorators';
+import { ClearIfNoVoiceConnection, CreateVoiceStateIfNotExists } from '@util/decorators';
 import { voiceState, VoiceState } from '@util/state';
 import { MessageEmbed } from 'discord.js';
 import { Action, ActionContext } from './types';
@@ -40,5 +40,6 @@ const resumeAction: Action = async function ({ message, guild }: ActionContext) 
 export const actionName = 'resume';
 export const type = 'action';
 let decorated: Action = CreateVoiceStateIfNotExists()(resumeAction);
+decorated = ClearIfNoVoiceConnection()(decorated)
 
 export default decorated;

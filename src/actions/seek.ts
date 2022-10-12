@@ -1,5 +1,5 @@
 import { getVoiceConnection } from "@discordjs/voice";
-import { CreateVoiceStateIfNotExists } from "@util/decorators";
+import { ClearIfNoVoiceConnection, CreateVoiceStateIfNotExists } from "@util/decorators";
 import { SongRequest, VoiceState, voiceState } from "@util/state";
 import { getYoutubeVideo, queueResource } from "@util/youtube";
 import { Action, ActionContext } from "./types";
@@ -38,5 +38,6 @@ const seekAction:Action = async function({message,guild,args}:ActionContext,fn){
 export const actionName = 'seek';
 export const type = 'action';
 let decorated: Action = CreateVoiceStateIfNotExists()(seekAction);
+decorated = ClearIfNoVoiceConnection()(decorated)
 
 export default decorated;

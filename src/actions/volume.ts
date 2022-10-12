@@ -1,4 +1,4 @@
-import { CreateVoiceStateIfNotExists } from '@util/decorators';
+import { ClearIfNoVoiceConnection, CreateVoiceStateIfNotExists } from '@util/decorators';
 import { voiceState, VoiceState } from '@util/state';
 import { Action, ActionContext } from './types';
 
@@ -16,5 +16,7 @@ const volumeAction: Action = async function ({ message, args }: ActionContext, f
 };
 export const type = 'action';
 export const actionName = 'volume';
-const decorated = CreateVoiceStateIfNotExists()(volumeAction);
+let decorated = CreateVoiceStateIfNotExists()(volumeAction);
+decorated = ClearIfNoVoiceConnection()(decorated)
+
 export default decorated;

@@ -1,4 +1,4 @@
-import { CreateVoiceStateIfNotExists } from '@util/decorators';
+import { ClearIfNoVoiceConnection, CreateVoiceStateIfNotExists } from '@util/decorators';
 import { voiceState, VoiceState } from '@util/state';
 import { Action, ActionContext } from './types';
 
@@ -18,6 +18,6 @@ const skipAction: Action = async function ({ guild, message }: ActionContext, fn
 
 export const actionName = 'skip';
 export const type = 'action';
-let decorated: Action = CreateVoiceStateIfNotExists()(skipAction);
+let decorated: Action = ClearIfNoVoiceConnection()(CreateVoiceStateIfNotExists()(skipAction));
 
 export default decorated;

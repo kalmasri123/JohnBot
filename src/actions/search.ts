@@ -4,6 +4,7 @@ import { Action, ActionContext } from './types';
 import * as States from '@util/state';
 import { handleQueueCommand } from '@util/audio';
 import {
+    ClearIfNoVoiceConnection,
     CreateMessageStateIfNotExists,
     CreateVoiceStateIfNotExists,
     RequiresSameVoiceChannel,
@@ -77,5 +78,6 @@ export const type = 'action';
 let decorated: Action = CreateMessageStateIfNotExists()(searchAction);
 decorated = CreateVoiceStateIfNotExists()(decorated);
 decorated = RequiresSameVoiceChannel()(decorated);
+decorated = ClearIfNoVoiceConnection()(decorated);
 
 export default decorated;

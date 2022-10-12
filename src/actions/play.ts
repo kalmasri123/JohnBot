@@ -5,7 +5,7 @@ import * as States from '@util/state';
 import * as ytpl from 'ytpl';
 
 import { Action, ActionContext } from './types';
-import { CreateVoiceStateIfNotExists, RequiresSameVoiceChannel } from '@util/decorators';
+import { ClearIfNoVoiceConnection, CreateVoiceStateIfNotExists, RequiresSameVoiceChannel } from '@util/decorators';
 const linkRegex =
     /http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?/;
 
@@ -108,4 +108,5 @@ export const actionName = 'play';
 export const type = 'action';
 let decorated = CreateVoiceStateIfNotExists()(playAction);
 decorated = RequiresSameVoiceChannel()(decorated);
+decorated = ClearIfNoVoiceConnection()(decorated)
 export default decorated;

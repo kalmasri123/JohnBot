@@ -1,5 +1,5 @@
 import { getVoiceConnection } from '@discordjs/voice';
-import { CreateVoiceStateIfNotExists } from '@util/decorators';
+import { ClearIfNoVoiceConnection, CreateVoiceStateIfNotExists } from '@util/decorators';
 import { voiceState } from '@util/state';
 import { VoiceState } from '@util/state';
 import { ActionContext, Action } from './types';
@@ -23,5 +23,7 @@ const stopAction: Action = async function ({ guild, message }: ActionContext) {
 };
 export const type = 'action';
 export const actionName = 'stop';
-const decorated = CreateVoiceStateIfNotExists()(stopAction);
+let decorated = CreateVoiceStateIfNotExists()(stopAction);
+decorated = ClearIfNoVoiceConnection()(decorated)
+
 export default decorated;
