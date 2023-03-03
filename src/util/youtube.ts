@@ -173,6 +173,14 @@ export async function queueResource(
                 }
             }, 15000);
         });
+        voiceConnection.on('stateChange', (old_state, new_state) => {
+            if (
+                old_state.status === VoiceConnectionStatus.Ready &&
+                new_state.status === VoiceConnectionStatus.Connecting
+            ) {
+                voiceConnection.configureNetworking();
+            }
+        });
         voiceConnection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => {
             try {
                 await Promise.race([
