@@ -173,14 +173,29 @@ export async function queueResource(
                 }
             }, 15000);
         });
-        voiceConnection.on('stateChange', (old_state, new_state) => {
+        voiceConnection.on("stateChange", (oldState, newState) => {
             if (
-                old_state.status === VoiceConnectionStatus.Ready &&
-                new_state.status === VoiceConnectionStatus.Connecting
+              oldState.status === VoiceConnectionStatus.Ready &&
+              newState.status === VoiceConnectionStatus.Connecting
             ) {
-                voiceConnection.configureNetworking();
+              voiceConnection.configureNetworking();
             }
-        });
+      
+            // Seems to eliminate some keepAlive timer that's making the bot auto-pause
+            const oldNetworking = Reflect.get(oldState, "networking");
+            const newNetworking = Reflect.get(newState, "networking");
+      
+            const networkStateChangeHandler = (
+              oldNetworkState: any,
+              newNetworkState: any
+            ) => {
+              const newUdp = Reflect.get(newNetworkState, "udp");
+              clearInterval(newUdp?.keepAliveInterval);
+            };
+      
+            oldNetworking?.off("stateChange", networkStateChangeHandler);
+            newNetworking?.on("stateChange", networkStateChangeHandler);
+          });
         voiceConnection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => {
             try {
                 await Promise.race([
