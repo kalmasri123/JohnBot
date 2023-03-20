@@ -9,7 +9,8 @@ class PingCommand extends Command {
     }
     executeFunction(message: Message, fn: () => void = null) {
         super.executeFunction(message, fn);
-        this.message.reply('PONG');
+        // this.message.reply('PONG');
     }
+    
 }
 export default new PingCommand();
