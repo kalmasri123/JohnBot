@@ -1,15 +1,15 @@
 import { ClearIfNoVoiceConnection, CreateVoiceStateIfNotExists } from '@util/decorators';
 import { voiceState, VoiceState } from '@util/state';
-import { MessageEmbed } from 'discord.js';
-import { Action, ActionContext } from './types';
+import { EmbedBuilder } from 'discord.js';
+import { Action, ActionContext, SlashAction, SlashActionContext } from './types';
 function pad(num, size) {
     var s = '000000000' + num;
     return s.substr(s.length - size);
 }
-const resumeAction: Action = async function ({ message, guild }: ActionContext) {
+const resumeAction: SlashAction = async function ({ interaction, guild }: SlashActionContext) {
     const guildVoiceState: VoiceState = voiceState[guild.id];
-    if (!guildVoiceState.nowPlaying) return message.reply('Not playing anything!');
-    if (!guildVoiceState.paused) return message.reply('Already playing!');
+    if (!guildVoiceState.nowPlaying) return interaction.reply('Not playing anything!');
+    if (!guildVoiceState.paused) return interaction.reply('Already playing!');
     const content = await guildVoiceState.nowPlaying.content;
     const resource = content.audioResource;
     const durationSeconds = Math.round(resource.playbackDuration / 1000);
@@ -20,7 +20,7 @@ const resumeAction: Action = async function ({ message, guild }: ActionContext) 
     const lengthSeconds = Math.round(content.duration % 60);
     guildVoiceState.subscription.player.unpause();
 
-    const songRequestEmbed = new MessageEmbed()
+    const songRequestEmbed = new EmbedBuilder()
         .setColor('#FF0000')
         .setTitle('Resumed')
 
@@ -31,15 +31,15 @@ const resumeAction: Action = async function ({ message, guild }: ActionContext) 
             )}:${pad(durationRemaining, 2)} - ${pad(lengthMinutes, 2)}:${pad(
                 lengthSeconds,
                 2,
-            )}\`\`\`\nRequester:<@${message.member.id}>`,
+            )}\`\`\`\nRequester:<@${interaction.member.user.id}>`,
         )
         .setThumbnail(content.thumbnail);
     guildVoiceState.paused = false;
-    message.reply({ embeds: [songRequestEmbed] });
+    interaction.reply({ embeds: [songRequestEmbed] });
 };
 export const actionName = 'resume';
 export const type = 'action';
-let decorated: Action = CreateVoiceStateIfNotExists()(resumeAction);
+let decorated = CreateVoiceStateIfNotExists()(resumeAction);
 decorated = ClearIfNoVoiceConnection()(decorated)
 
 export default decorated;

@@ -120,6 +120,7 @@ const startVoiceCommandsAction: Action = async function ({ message, guild }: Act
 };
 export const actionName = 'startvoicecommands';
 export const type = 'action';
-let decorated: Action = CreateVoiceCommandStateIfNotExists()(startVoiceCommandsAction);
-decorated = CreateVoiceStateIfNotExists()(decorated);
+let decorated = startVoiceCommandsAction
+// let decorated: Action = CreateVoiceCommandStateIfNotExists()(startVoiceCommandsAction);
+// decorated = CreateVoiceStateIfNotExists()(decorated);
 export default decorated;

@@ -1,24 +1,19 @@
 import { Command } from 'commands/Command';
-import Discord, { Guild, GuildStickerManager } from 'discord.js';
+import Discord, { ApplicationCommandPermissionType, Client, Guild, GuildStickerManager } from 'discord.js';
 import { cp, readdirSync } from 'fs';
 import { join } from 'path';
 import { env } from '@util/env';
 import { nextTick } from 'process';
 import { messageState } from '@util/state';
+import { commandNames, commands } from '@util/commandManager';
+const { REST, Routes } = require('discord.js');
 
-const commandNames = readdirSync(join(__dirname, '../commands/')).filter((el) => {
-    console.log(el);
-    const extension = process.env.ENV == 'DEBUG' ? '.ts' : '.js';
-    return el != `Command${extension}` && el.endsWith(extension);
-});
-const commands = {};
 const messageQueue = {};
-commandNames.map(async (commandName) => {
-    const command: Command = (await import(`../commands/${commandName}`)).default;
-    commands[command.commandName] = command;
-});
+
+
 
 async function handleMessage(guild: Guild) {
+    console.log(messageQueue);
     if (!messageState[guild.id]) {
         messageState[guild.id] = {};
     }
@@ -44,12 +39,14 @@ async function handleMessage(guild: Guild) {
     const command: Command = commands[commandName] ? commands[commandName] : null;
     if (!command) {
         try {
-            let followUpMessage = messageState[guild.id][message.member.id];
+            let followUpMessage = messageState[guild.id][message.member.id] || messageState[guild.id][message.channelId];
             console.log(messageState);
             if (followUpMessage) {
+                console.log(message)
                 let res = await followUpMessage.callback(message);
                 if (res) {
-                    delete messageState[guild.id][message.member.id];
+                    if(messageState[guild.id][message.member.id]) delete messageState[guild.id][message.member.id];
+                    if(messageState[guild.id][message.channelId]) delete messageState[guild.id][message.channelId];
                 }
                 if (!resolved) {
                     return next();
@@ -90,5 +87,6 @@ export default async function Message(message: Discord.Message) {
     messageQueue[message.guild.id].queue.push(message);
     if (!messageQueue[message.guild.id].handlingMessage) {
         handleMessage(message.guild);
+        
     }
 }

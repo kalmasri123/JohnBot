@@ -1,6 +1,6 @@
 import { getYoutubeVideo, searchYTVideos } from '@util/youtube';
-import { Message, MessageEmbed } from 'discord.js';
-import { Action, ActionContext } from './types';
+import { Message, EmbedBuilder } from 'discord.js';
+import { Action, ActionContext, SlashAction, SlashActionContext } from './types';
 import * as States from '@util/state';
 import { handleQueueCommand } from '@util/audio';
 import {
@@ -9,13 +9,13 @@ import {
     CreateVoiceStateIfNotExists,
     RequiresSameVoiceChannel,
 } from '@util/decorators';
-const searchAction: Action = async function ({ message,args,guild }: ActionContext) {
+const searchAction: SlashAction = async function ({ interaction,args,guild }: SlashActionContext) {
     try {
         const searchQuery = args.slice(1).join(' ');
         const searchResults = await searchYTVideos(searchQuery, 5);
-        if (searchResults.length == 0) return message.reply('Videos not found');
+        if (searchResults.length == 0) return interaction.reply('Videos not found');
         console.log(searchResults);
-        const songRequestEmbed = new MessageEmbed()
+        const songRequestEmbed = new EmbedBuilder()
             .setColor('#FF0000')
             .setTitle(`Search Results. Pick a number from ${1} to ${searchResults.length}`)
             .addFields(
@@ -65,17 +65,18 @@ const searchAction: Action = async function ({ message,args,guild }: ActionConte
         let followUpMessage: States.FollowupCommand = {
             callback,
             data: searchResults,
-            originalMessage: message,
+            originalInteraction: interaction,
+            
         };
-        States.messageState[guild.id][message.member.id] = followUpMessage;
-        message.reply({ embeds: [songRequestEmbed] });
+        States.messageState[guild.id][interaction.member.user.id] = followUpMessage;
+        interaction.reply({ embeds: [songRequestEmbed] });
     } catch (err) {
-        return message.reply('Unable to search. Please try again.');
+        return interaction.reply('Unable to search. Please try again.');
     }
 };
 export const actionName = 'search';
 export const type = 'action';
-let decorated: Action = CreateMessageStateIfNotExists()(searchAction);
+let decorated = CreateMessageStateIfNotExists()(searchAction);
 decorated = CreateVoiceStateIfNotExists()(decorated);
 decorated = RequiresSameVoiceChannel()(decorated);
 decorated = ClearIfNoVoiceConnection()(decorated);
