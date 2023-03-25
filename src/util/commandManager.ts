@@ -24,6 +24,7 @@ export async function registerCommands(client:Client) {
             return el.slashCommand.toJSON() ;
         });
     (await client.guilds.fetch()).forEach(async guild=>{
+        rest.put(Routes.applicationGuildCommands(env.CLIENT_ID, guild.id), { body: [] })
         const res = await rest.put(Routes.applicationGuildCommands(env.CLIENT_ID, guild.id), {
             body: registeredCommands,
         });
