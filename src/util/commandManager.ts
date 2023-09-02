@@ -25,9 +25,9 @@ export async function registerCommands(client: Client) {
     const guilds = await client.guilds.fetch()
     for (let i in guilds) {
         const guild = guilds[i]
-        // await rest.put(Routes.applicationCommands(env.CLIENT_ID), { body: [] });
+        await rest.put(Routes.applicationCommands(env.CLIENT_ID), { body: [] });
 
-        // await rest.put(Routes.applicationGuildCommands(env.CLIENT_ID, guild.id), { body: [] });
+        await rest.put(Routes.applicationGuildCommands(env.CLIENT_ID, guild.id), { body: [] });
         const res = await rest.put(Routes.applicationGuildCommands(env.CLIENT_ID, guild.id), {
             body: registeredCommands,
         });
