@@ -10,7 +10,8 @@ class PlayCommand extends Command {
             commandName: 'play',
             slashCommand: new SlashCommandBuilder()
                 .setName('play')
-                .addStringOption((option) => option.setName('name').setDescription("Video name to search for").setRequired(true))
+                .addStringOption((option) => option.setName('name').setDescription("Video name to search for").setRequired(false))
+                .addAttachmentOption((option) => option.setName('file').setDescription("Mp3 file").setRequired(false))
                 .setDescription('Play a song')
 
         });
@@ -21,8 +22,8 @@ class PlayCommand extends Command {
     }
     async executeCommand(interaction: ChatInputCommandInteraction, fn: () => void = null) {
 
-        super.executeCommand(interaction, fn);
-        const args = ["",...interaction.options.getString("name").split(" ")]
+        await super.executeCommand(interaction, fn);
+        const args = ["",]
         playAction({interaction,guild:interaction.guild,args}, fn);
     }
 }

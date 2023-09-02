@@ -21,7 +21,7 @@ class PlaylistCommand extends Command {
         // .sert
     }
     async executeCommand(interaction: ChatInputCommandInteraction, fn: () => void = null) {
-        super.executeCommand(interaction, fn);
+        await super.executeCommand(interaction, fn);
         const args = [''];
         playlistAction({ interaction, guild: interaction.guild, args }, fn);
     }

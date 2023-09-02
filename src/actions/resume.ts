@@ -8,8 +8,8 @@ function pad(num, size) {
 }
 const resumeAction: SlashAction = async function ({ interaction, guild }: SlashActionContext) {
     const guildVoiceState: VoiceState = voiceState[guild.id];
-    if (!guildVoiceState.nowPlaying) return interaction.reply('Not playing anything!');
-    if (!guildVoiceState.paused) return interaction.reply('Already playing!');
+    if (!guildVoiceState.nowPlaying) return interaction.editReply('Not playing anything!');
+    if (!guildVoiceState.paused) return interaction.editReply('Already playing!');
     const content = await guildVoiceState.nowPlaying.content;
     const resource = content.audioResource;
     const durationSeconds = Math.round(resource.playbackDuration / 1000);
@@ -35,7 +35,7 @@ const resumeAction: SlashAction = async function ({ interaction, guild }: SlashA
         )
         .setThumbnail(content.thumbnail);
     guildVoiceState.paused = false;
-    interaction.reply({ embeds: [songRequestEmbed] });
+    interaction.editReply({ embeds: [songRequestEmbed] });
 };
 export const actionName = 'resume';
 export const type = 'action';

@@ -9,9 +9,9 @@ const skipAction: SlashAction = async function ({ guild, interaction }: SlashAct
         resource.end();
 
         guildVoiceState.subscription.player.stop();
-        interaction.reply('Skipped!');
+        interaction.editReply('Skipped!');
     } else {
-        interaction.reply("I'm not playing anything");
+        interaction.editReply("I'm not playing anything");
     }
     return;
 };

@@ -24,7 +24,7 @@ class ResumeCommand extends Command {
     }
     async executeCommand(interaction: ChatInputCommandInteraction, fn: () => void = null) {
 
-        super.executeCommand(interaction, fn);
+        await super.executeCommand(interaction, fn);
         const args = [""]
         resumeAction({interaction,guild:interaction.guild,args}, fn);
     }

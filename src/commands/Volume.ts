@@ -22,7 +22,7 @@ class Volume extends Command {
         // nowPlaying.
     }
     async executeCommand(interaction: ChatInputCommandInteraction, fn: () => void = null) {
-        super.executeCommand(interaction, fn);
+        await super.executeCommand(interaction, fn);
         const args = ['',interaction.options.getString("volume").split(" ")[0]];
         await volumeAction({ interaction, guild: interaction.guild, args }, fn);
     }

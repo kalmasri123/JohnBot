@@ -13,16 +13,14 @@ const characterAction: SlashAction = async function ({ interaction }: SlashActio
         let charIndex = getRandomInt(0, characterList.length - 1);
 
         let character = characterList[charIndex];
-        console.log(character);
         const embed = new EmbedBuilder()
             .setColor('#FFFFFF')
             .setImage(character.image)
             .setTitle('Guess the Character')
             .setTimestamp(Date.now());
-        interaction.reply({ embeds: [embed] });
+        interaction.editReply({ embeds: [embed] });
 
         async function callback(this:FollowupCommand,message: Message, fn: () => void = null) {
-            console.log("CONTENT",message.content)
             // if (message.author != this.originalInteraction.member.user) return;
             switch (message.content.trim().toLowerCase()) {
                 case 'end':
@@ -77,7 +75,7 @@ const characterAction: SlashAction = async function ({ interaction }: SlashActio
         };
     } catch (err) {
         console.error(err);
-        interaction.reply('An error has occurred communicating with the server');
+        interaction.editReply('An error has occurred communicating with the server');
     }
 };
 export const actionName = 'character';

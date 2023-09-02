@@ -23,7 +23,7 @@ class SeekCommand extends Command {
     }
     async executeCommand(interaction: ChatInputCommandInteraction, fn: () => void = null) {
 
-        super.executeCommand(interaction, fn);
+        await super.executeCommand(interaction, fn);
         const args = ["",interaction.options.getString("time")]
         seekAction({interaction,guild:interaction.guild,args}, fn);
     }

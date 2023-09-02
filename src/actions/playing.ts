@@ -9,7 +9,7 @@ function pad(num, size) {
 }
 const playingAction: SlashAction = async function ({ interaction, guild }: SlashActionContext, fn) {
     const guildVoiceState: VoiceState = voiceState[guild.id];
-    if (!guildVoiceState.playing) return interaction.reply('Nothing is playing!');
+    if (!guildVoiceState.playing) return interaction.editReply('Nothing is playing!');
     const content = await guildVoiceState.nowPlaying.content;
     const resource = content.audioResource;
     const durationSeconds = Math.round(resource.playbackDuration / 1000);
@@ -33,7 +33,7 @@ const playingAction: SlashAction = async function ({ interaction, guild }: Slash
             )}\`\`\`\nRequester:<@${interaction.member.user.id}>`,
         )
         .setThumbnail(content.thumbnail);
-    interaction.reply({ embeds: [songRequestEmbed] });
+    interaction.editReply({ embeds: [songRequestEmbed] });
 };
 
 export const actionName = 'playing';

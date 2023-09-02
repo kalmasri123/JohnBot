@@ -16,9 +16,9 @@ const stopAction: SlashAction = async function ({ guild, interaction }: SlashAct
         guildVoiceState.subscription = null;
         const connection = getVoiceConnection(guild.id);
         connection.destroy();
-        interaction.reply('Stopped!');
+        interaction.editReply('Stopped!');
     } else {
-        interaction.reply("I'm not playing anything");
+        interaction.editReply("I'm not playing anything");
     }
 };
 export const type = 'action';

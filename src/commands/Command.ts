@@ -48,7 +48,7 @@ export abstract class Command {
         fn;
         // console.log(interaction.options.data)
         // this.message = message;
-        // await interaction.deferReply()
+        await interaction.deferReply()
         // this.args = interaction.options.data;
         // console.log
         // this.guild = message.guild;

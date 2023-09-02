@@ -6,13 +6,13 @@ const volumeAction: SlashAction = async function ({ interaction, args }: SlashAc
     const guildVoiceState: VoiceState = voiceState[interaction.guild.id];
     const volume = parseInt(args[1]);
     if (isNaN(volume) || volume > 100 || volume < 0) {
-        return interaction.reply(`Incorrect Arguments`);
+        return interaction.editReply(`Incorrect Arguments`);
     }
     if (guildVoiceState.nowPlaying) {
         (await guildVoiceState.nowPlaying.content).audioResource.volume.setVolume(volume / 100);
     }
     guildVoiceState.volume = volume / 100;
-    interaction.reply("Volume changed")
+    interaction.editReply("Volume changed")
     fn();
 };
 export const type = 'action';

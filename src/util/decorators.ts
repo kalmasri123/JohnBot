@@ -16,7 +16,7 @@ export function RequiresSameVoiceChannel() {
             console.log(interaction.guild);
             const botVoiceChannel = interaction.guild.members.me.voice?.channelId;
             if (botVoiceChannel && botVoiceChannel != requesterVoiceChannel) {
-                interaction.reply('Please join my voice channel');
+                interaction.editReply('Please join my voice channel');
                 return null;
             }
             return oldMethod.apply(this, args);

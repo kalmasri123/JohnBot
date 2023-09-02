@@ -13,8 +13,7 @@ const searchAction: SlashAction = async function ({ interaction,args,guild }: Sl
     try {
         const searchQuery = args.slice(1).join(' ');
         const searchResults = await searchYTVideos(searchQuery, 5);
-        if (searchResults.length == 0) return interaction.reply('Videos not found');
-        console.log(searchResults);
+        if (searchResults.length == 0) return interaction.editReply('Videos not found');
         const songRequestEmbed = new EmbedBuilder()
             .setColor('#FF0000')
             .setTitle(`Search Results. Pick a number from ${1} to ${searchResults.length}`)
@@ -69,9 +68,9 @@ const searchAction: SlashAction = async function ({ interaction,args,guild }: Sl
             
         };
         States.messageState[guild.id][interaction.member.user.id] = followUpMessage;
-        interaction.reply({ embeds: [songRequestEmbed] });
+        interaction.editReply({ embeds: [songRequestEmbed] });
     } catch (err) {
-        return interaction.reply('Unable to search. Please try again.');
+        return interaction.editReply('Unable to search. Please try again.');
     }
 };
 export const actionName = 'search';

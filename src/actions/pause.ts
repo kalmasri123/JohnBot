@@ -12,8 +12,8 @@ function pad(num, size) {
 }
 const pauseAction: SlashAction = async function ({ interaction, guild }: SlashActionContext, fn) {
     const guildVoiceState: VoiceState = voiceState[guild.id];
-    if (!guildVoiceState.nowPlaying) return interaction.reply('Not playing anything!');
-    if (guildVoiceState.paused) return interaction.reply('Already paused!');
+    if (!guildVoiceState.nowPlaying) return interaction.editReply('Not playing anything!');
+    if (guildVoiceState.paused) return interaction.editReply('Already paused!');
     const content = await guildVoiceState.nowPlaying.content;
     const resource = content.audioResource;
     const durationSeconds = Math.round(resource.playbackDuration / 1000);
@@ -39,7 +39,7 @@ const pauseAction: SlashAction = async function ({ interaction, guild }: SlashAc
         )
         .setThumbnail(content.thumbnail);
     guildVoiceState.paused = true;
-    interaction.reply({ embeds: [songRequestEmbed] });
+    interaction.editReply({ embeds: [songRequestEmbed] });
 };
 export const actionName = 'pause';
 export const type = 'action';
