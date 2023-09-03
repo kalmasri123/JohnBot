@@ -1,11 +1,21 @@
 import { getVoiceConnection, joinVoiceChannel } from '@discordjs/voice';
-import { cacheYoutubeData, getMp3File, getYoutubeVideo, queueResource, searchYTVideos } from '@util/youtube';
+import {
+    cacheYoutubeData,
+    getMp3File,
+    getYoutubeVideo,
+    queueResource,
+    searchYTVideos,
+} from '@util/youtube';
 import { EmbedBuilder, Guild, GuildMember } from 'discord.js';
 import * as States from '@util/state';
 import * as ytpl from 'ytpl';
 
 import { Action, ActionContext, SlashAction, SlashActionContext } from './types';
-import { ClearIfNoVoiceConnection, CreateVoiceStateIfNotExists,  RequiresSameVoiceChannel } from '@util/decorators';
+import {
+    ClearIfNoVoiceConnection,
+    CreateVoiceStateIfNotExists,
+    RequiresSameVoiceChannel,
+} from '@util/decorators';
 const linkRegex =
     /http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?/;
 
@@ -13,19 +23,21 @@ const playAction: SlashAction = async function (
     { interaction, guild, args }: SlashActionContext,
     fn: () => void = null,
 ) {
-    const attachment = interaction.options.getAttachment("file") 
-    if(!interaction.options.getString("name") && !attachment){
-        return interaction.editReply("No File or youtube video provided")
+    const attachment = interaction.options.getAttachment('file');
+    if (!interaction.options.getString('name') && !attachment) {
+        return interaction.editReply('No File or youtube video provided');
     }
-    let link = interaction.options.getString("name");
-    if(attachment){
-        console.log(attachment.url)
+    let link = interaction.options.getString('name');
+    if (attachment) {
+        console.log(attachment.url);
         let voiceConnection = getVoiceConnection(guild.id);
         const memberVoiceChannel = (interaction.member as GuildMember).voice.channel;
         if (!memberVoiceChannel) return interaction.editReply('Please enter a voice channel!');
         if (!memberVoiceChannel.joinable)
-            return interaction.editReply('I do not have sufficient permissions to join this voice channel!');
-    
+            return interaction.editReply(
+                'I do not have sufficient permissions to join this voice channel!',
+            );
+
         if (!voiceConnection) {
             voiceConnection = await joinVoiceChannel({
                 channelId: memberVoiceChannel.id,
@@ -33,28 +45,32 @@ const playAction: SlashAction = async function (
                 adapterCreator: memberVoiceChannel.guild.voiceAdapterCreator as any,
             });
         }
-        let audio = await getMp3File(attachment.url,{ seek: 0 }, false);
-        const request: States.SongRequest = {
-            content: audio,
-            requester: interaction.member as GuildMember,
-            link,
-        };
-        const p = queueResource(request, voiceConnection, fn);
-        p.then(async () => {
-            // Song Request Successful
-            // Respond with success interaction
-            const content = await request.content;
-            const songRequestEmbed = new EmbedBuilder()
-                .setColor('#FF0000')
-                .setTitle('Song Queued')
+        try {
+            let audio = await getMp3File(attachment.url, { seek: 0 }, false);
+            const request: States.SongRequest = {
+                content: audio,
+                requester: interaction.member as GuildMember,
+                link:attachment.url,
+            };
+            const p = queueResource(request, voiceConnection, fn);
+            p.then(async () => {
+                // Song Request Successful
+                // Respond with success interaction
+                const content = await request.content;
+                const songRequestEmbed = new EmbedBuilder()
+                    .setColor('#FF0000')
+                    .setTitle('Song Queued')
 
-                .setDescription(
-                    `[${content.title}](${link})\n\nRequester:<@${interaction.member.user.id}>`,
-                )
-                .setThumbnail(content.thumbnail);
-            interaction.editReply({ embeds: [songRequestEmbed] });
-        }).catch(console.log);
-        return
+                    .setDescription(
+                        `[${content.title}](${attachment.url})\n\nRequester:<@${interaction.member.user.id}>`,
+                    )
+                    .setThumbnail(content.thumbnail);
+                interaction.editReply({ embeds: [songRequestEmbed] });
+            }).catch(console.log);
+            return;
+        } catch (err) {
+            interaction.editReply("Unable to get audio")
+        }
     }
     if (!linkRegex.test(link)) {
         try {
@@ -85,7 +101,6 @@ const playAction: SlashAction = async function (
                 ytID: el.id,
             });
         });
-        
     } else {
         links = [link];
     }
@@ -96,7 +111,9 @@ const playAction: SlashAction = async function (
     const memberVoiceChannel = (interaction.member as GuildMember).voice.channel;
     if (!memberVoiceChannel) return interaction.editReply('Please enter a voice channel!');
     if (!memberVoiceChannel.joinable)
-        return interaction.editReply('I do not have sufficient permissions to join this voice channel!');
+        return interaction.editReply(
+            'I do not have sufficient permissions to join this voice channel!',
+        );
 
     if (!voiceConnection) {
         voiceConnection = await joinVoiceChannel({
@@ -142,15 +159,17 @@ const playAction: SlashAction = async function (
             .setColor('#FF0000')
             .setTitle('Playlist Queued')
 
-            .setDescription(`[${ytplResp.title}](${link})\n\nRequester:<@${interaction.member.user.id}>`)
+            .setDescription(
+                `[${ytplResp.title}](${link})\n\nRequester:<@${interaction.member.user.id}>`,
+            )
             .setThumbnail(ytplResp.thumbnails[0].url);
-        interaction.editReply({ embeds: [songRequestEmbed]});
+        interaction.editReply({ embeds: [songRequestEmbed] });
     }
 };
 export const actionName = 'play';
 export const type = 'action';
-let decorated = playAction
+let decorated = playAction;
 decorated = CreateVoiceStateIfNotExists()(decorated);
 decorated = RequiresSameVoiceChannel()(decorated);
-decorated = ClearIfNoVoiceConnection()(decorated)
+decorated = ClearIfNoVoiceConnection()(decorated);
 export default decorated;
