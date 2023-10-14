@@ -1,5 +1,5 @@
 import { getVoiceConnection, joinVoiceChannel } from '@discordjs/voice';
-import { Message, MessageEmbed, VoiceBasedChannel, VoiceChannel } from 'discord.js';
+import { Message, EmbedBuilder, VoiceBasedChannel, VoiceChannel } from 'discord.js';
 import { SongRequest } from './state';
 import { queueResource } from './youtube';
 
@@ -24,7 +24,7 @@ export async function handleQueueCommand(
         //Song Request Successful
         //Respond with success message
         const content = await request.content;
-        const songRequestEmbed = new MessageEmbed()
+        const songRequestEmbed = new EmbedBuilder()
             .setColor('#FF0000')
             .setTitle('Song Queued')
 

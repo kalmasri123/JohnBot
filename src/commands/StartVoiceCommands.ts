@@ -1,6 +1,6 @@
 import { Command, ExecuteFunction } from './Command';
 import { Message } from 'discord.js';
-import startVoiceCommandsAction from 'actions/startvoicecommands';
+// import startVoiceCommandsAction from 'actions/startvoicecommands';
 class StartVoiceCommands extends Command {
     constructor() {
         super({
@@ -10,7 +10,7 @@ class StartVoiceCommands extends Command {
     }
     async executeFunction(message: Message, fn: () => void = null) {
         super.executeFunction(message, fn);
-        startVoiceCommandsAction(this, fn);
+        // startVoiceCommandsAction(this, fn);
         return;
     }
 }

@@ -17,6 +17,9 @@ import {
     VoiceConnection,
     VoiceConnectionStatus,
 } from '@discordjs/voice';
+import { parseBuffer, parseStream } from 'music-metadata';
+const fetch = require('node-fetch');
+
 import { VoiceState } from '@util/state';
 import { VoiceConnectionDestroyedState } from '@discordjs/voice';
 const youtubeSearch = promisify(yts);
@@ -93,6 +96,24 @@ export async function getYoutubeVideo(link: string, { seek }, lazy = false) {
 
     return content;
 }
+export async function getMp3File(link: string, { seek }, lazy = false) {
+    console.log('LINK', link);
+    // seek = 10;
+    console.log((await fetch(link)).body)
+    const buffer:Buffer = await (await fetch(link)).buffer()
+    const metadata = await parseBuffer(buffer)
+    console.log(metadata)
+    const content: SongContent = {
+        title:"Custom File",
+        resource: Readable.from(buffer),
+        thumbnail: "https://www.computerhope.com/jargon/m/mp3.png",
+        duration: metadata.format.duration,
+        lazy,
+    };
+
+
+    return content;
+}
 
 export async function queueResource(
     songRequest: SongRequest,
@@ -106,7 +127,6 @@ export async function queueResource(
 
     //If length is 0, then resubscribe
     const startQueue = queue.length == 0 && !guildVoiceState.playing;
-    console.log(queue.length, !guildVoiceState.playing, startQueue);
     if (startQueue) {
         if (front) {
             queue.unshift(songRequest);

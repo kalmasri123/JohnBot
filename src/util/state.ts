@@ -5,14 +5,14 @@ import {
     VoiceReceiver,
 } from '@discordjs/voice';
 import { Command } from 'commands/Command';
-import { Guild, GuildMember, Message } from 'discord.js';
+import { ChatInputCommandInteraction, Guild, GuildMember, Message } from 'discord.js';
 import { Readable, Transform } from 'stream';
 import { isFunction } from 'util';
 import * as prism from 'prism-media';
 
 //key=guildid.value = VoiceState
 export interface SongContent {
-    resource: Readable | (() => Readable);
+    resource: Readable | (() => Readable) | Buffer;
     audioResource?: AudioResource;
     title: string;
     thumbnail?: string;
@@ -42,7 +42,8 @@ export interface VoiceState {
 export interface FollowupCommand {
     callback: (message: Message) => any;
     data: any;
-    originalMessage: Message;
+    originalMessage?: Message;
+    originalInteraction?:ChatInputCommandInteraction;
     tag?: string;
 }
 export function createVoiceState(guildId) {
@@ -66,5 +67,6 @@ export function deleteMessageState(guildId, authorId, tag = null) {
     return false;
 } //Guild - Author - Tag
 export const messageState: { [key: string]: { [key: string]: FollowupCommand } } = {};
+
 export const voiceState = {};
 export const voiceCommandState: { [key: string]: VoiceCommandState } = {};

@@ -1,31 +1,30 @@
 import { getCharacters } from '@util/anilist';
 import { CreateMessageStateIfNotExists } from '@util/decorators';
 import { getRandomInt } from '@util/helpers';
-import { deleteMessageState, messageState } from '@util/state';
-import { Message, MessageEmbed } from 'discord.js';
+import { FollowupCommand, deleteMessageState, messageState } from '@util/state';
+import { Message, EmbedBuilder } from 'discord.js';
 import stringSimilarity from 'string-similarity-js';
-import { Action, ActionContext } from './types';
+import { Action, ActionContext, SlashAction, SlashActionContext } from './types';
 
-const characterAction: Action = async function ({ message }: ActionContext) {
+const characterAction: SlashAction = async function ({ interaction }: SlashActionContext) {
     const page = getRandomInt(0, 10);
     try {
         let characterList = await getCharacters(page);
         let charIndex = getRandomInt(0, characterList.length - 1);
 
         let character = characterList[charIndex];
-        console.log(character);
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
             .setColor('#FFFFFF')
             .setImage(character.image)
             .setTitle('Guess the Character')
             .setTimestamp(Date.now());
-        message.reply({ embeds: [embed] });
+        interaction.editReply({ embeds: [embed] });
 
-        async function callback(message: Message, fn: () => void = null) {
-            if (message.author != this.originalMessage.author) return;
+        async function callback(this:FollowupCommand,message: Message, fn: () => void = null) {
+            // if (message.author != this.originalInteraction.member.user) return;
             switch (message.content.trim().toLowerCase()) {
                 case 'end':
-                    if (deleteMessageState(message.guild.id, message.author.id, 'character')) {
+                    if (deleteMessageState(message.guild.id, message.channelId, 'character')) {
                         message.reply(
                             `Successfully Ended\nThe correct Character is ${
                                 this.data.character.fullName
@@ -68,18 +67,18 @@ const characterAction: Action = async function ({ message }: ActionContext) {
             );
             return true;
         }
-        messageState[message.guild.id][message.author.id] = {
+        messageState[interaction.guild.id][interaction.channelId] = {
             data: { tries: 5, character },
             tag: 'character',
             callback,
-            originalMessage: message,
+            originalInteraction: interaction,
         };
     } catch (err) {
         console.error(err);
-        message.reply('An error has occurred communicating with the server');
+        interaction.editReply('An error has occurred communicating with the server');
     }
 };
 export const actionName = 'character';
 export const type = 'action';
-let decorated: Action = CreateMessageStateIfNotExists()(characterAction);
+let decorated: SlashAction = CreateMessageStateIfNotExists()(characterAction);
 export default decorated;

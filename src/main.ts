@@ -3,57 +3,51 @@ import 'module-alias/register';
 import { env } from '@util/env';
 import PresenceUpdate from './controllers/PresenceUpdate';
 import MessageEvent from './controllers/Message';
-
-import { Client, Intents, VoiceChannel } from 'discord.js';
+import { commands, registerCommands } from '@util/commandManager';
+import { Client, VoiceChannel,GatewayIntentBits, Events } from 'discord.js';
 import '@util/actions';
-import { GuildScheduledEventEntityTypes, PrivacyLevels } from 'discord.js/typings/enums';
+import { Command } from 'commands/Command';
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 try {
     const client: Client = new Client({
         intents: [
-            Intents.FLAGS.GUILDS,
-            Intents.FLAGS.GUILD_MESSAGES,
-
-            Intents.FLAGS.GUILD_PRESENCES,
-            Intents.FLAGS.GUILD_VOICE_STATES,
+            GatewayIntentBits.Guilds,
+            GatewayIntentBits.MessageContent,
+            GatewayIntentBits.GuildMessages,
+            GatewayIntentBits.GuildPresences,
+            GatewayIntentBits.GuildVoiceStates,
         ],
-        retryLimit: Infinity,
+        // retryLimit: Infinity,
         presence: {
             status: 'idle',
         },
     });
-    async function createImportantEvent() {
-        // const secretChat = await client.guilds.fetch('383034248954773505');
-        // const startTime = new Date();
-        // startTime.setHours(startTime.getHours() + 1, 0, 0, 0);
-        // // const endTime = new Date();
-        // // endTime.setHours(startTime.getHours() + 8, 0, 0);
 
-        // let event = await secretChat.scheduledEvents.create({
-        //     name: 'Do gus mom',
-        //     scheduledStartTime: startTime,
-        //     entityType: GuildScheduledEventEntityTypes.VOICE,
-        //     privacyLevel: PrivacyLevels.GUILD_ONLY,
-        //     channel: (await secretChat.channels.fetch('383034249525067790')) as VoiceChannel,
-        // });
-        // await event.setStatus('ACTIVE');
-        // await delay(8 * 1000 * 60 * 60);
-        // if (event.status != 'COMPLETED' && event.status != 'CANCELED') {
-        //     await event.setStatus('COMPLETED');
-        // }
-    }
     client.on('ready', async () => {
         console.log('BOT IS READY');
         await client.user.setActivity(null);
         await client.user.setPresence({ status: 'online' });
+        await registerCommands(client);
+
         //Create Scheduled events
-        await createImportantEvent();
-        setInterval(createImportantEvent, 1000 * 60 * 60 * 16);
     });
     client.login(env.BOT_TOKEN);
 
     client.on('messageCreate', MessageEvent);
     client.on('presenceUpdate', PresenceUpdate);
+    client.on(Events.InteractionCreate,async interaction=>{
+        if (!interaction.isChatInputCommand()) return;
+        const commandName = interaction.commandName;
+        console.log(commandName) 
+        try {
+            const command:Command = commands[commandName];
+            command.executeCommand(interaction,()=>{})
+        }
+        catch(error){
+            console.error(error)
+            console.error(`Error executing ${interaction.commandName}`)
+        }
+    })
 } catch (err) {
     console.log(err);
 }
