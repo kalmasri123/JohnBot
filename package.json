@@ -5,7 +5,7 @@
   "description": "",
   "license": "MIT",
   "scripts": {
-    "build": "tsc -p ./tsconfig.json && node ./dist/main.js",
+    "build": "tsc -p ./tsconfig.json",
     "start": "ts-node ./src/main.ts",
     "dev:debug": "ENV=DEBUG nodemon src/main.ts"
   },
