@@ -23,7 +23,7 @@ jobs:
         key: ${{ secrets.PRIVATE_KEY }}
         port: 22
         script: |
-          cd ~/root/JohnBot
+          cd JohnBot
           git pull origin master
           npm install
           npm run build
