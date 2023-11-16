@@ -2,7 +2,7 @@ import * as yts from 'youtube-search';
 import { env } from './env';
 import { isFunction, promisify } from 'util';
 import { YouTubeSearchOptions } from 'youtube-search';
-import * as ytdl from 'ytdl-core';
+import * as ytdl from '@distube/ytdl-core';
 import { del, get, hGet, hSet, set } from '@util/redis';
 import { PassThrough, Readable, Transform } from 'stream';
 import * as ffmpeg from 'fluent-ffmpeg';

@@ -13,6 +13,7 @@
     "@discordjs/builders": "^1.5.0",
     "@discordjs/opus": "^0.5.3",
     "@discordjs/voice": "^0.7.5",
+    "@distube/ytdl-core": "^4.13.2",
     "@google-cloud/speech": "^4.10.0",
     "@types/fluent-ffmpeg": "^2.1.20",
     "discord.js": "^14.10.2",
@@ -30,7 +31,6 @@
     "tsconfig-paths": "^3.12.0",
     "wav-converter": "^1.0.0",
     "youtube-search": "^1.1.6",
-    "ytdl-core": "git+ssh://git@github.com:khlevon/node-ytdl-core.git#v4.11.4-patch.2",
     "ytpl": "^2.2.3"
   },
   "devDependencies": {
