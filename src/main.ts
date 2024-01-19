@@ -1,5 +1,3 @@
-import 'module-alias/register';
-
 import { env } from '@util/env';
 import PresenceUpdate from './controllers/PresenceUpdate';
 import MessageEvent from './controllers/Message';
