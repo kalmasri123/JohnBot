@@ -24,7 +24,7 @@ const playAction: SlashAction = async function (
     fn: () => void = null,
 ) {
     let attachment, link;
-    if (args.length == 0) {
+    if (!args?.[0].length) {
         attachment = interaction.options.getAttachment('file');
         if (!interaction.options.getString('name') && !attachment) {
             return interaction.editReply('No File or youtube video provided');
