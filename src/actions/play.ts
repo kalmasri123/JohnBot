@@ -23,55 +23,61 @@ const playAction: SlashAction = async function (
     { interaction, guild, args }: SlashActionContext,
     fn: () => void = null,
 ) {
-    const attachment = interaction.options.getAttachment('file');
-    if (!interaction.options.getString('name') && !attachment) {
-        return interaction.editReply('No File or youtube video provided');
-    }
-    let link = interaction.options.getString('name');
-    if (attachment) {
-        console.log(attachment.url);
-        let voiceConnection = getVoiceConnection(guild.id);
-        const memberVoiceChannel = (interaction.member as GuildMember).voice.channel;
-        if (!memberVoiceChannel) return interaction.editReply('Please enter a voice channel!');
-        if (!memberVoiceChannel.joinable)
-            return interaction.editReply(
-                'I do not have sufficient permissions to join this voice channel!',
-            );
-
-        if (!voiceConnection) {
-            voiceConnection = await joinVoiceChannel({
-                channelId: memberVoiceChannel.id,
-                guildId: guild.id,
-                adapterCreator: memberVoiceChannel.guild.voiceAdapterCreator as any,
-            });
+    let attachment, link;
+    if (args.length == 0) {
+        attachment = interaction.options.getAttachment('file');
+        if (!interaction.options.getString('name') && !attachment) {
+            return interaction.editReply('No File or youtube video provided');
         }
-        try {
-            let audio = await getMp3File(attachment.url, { seek: 0 }, false);
-            const request: States.SongRequest = {
-                content: audio,
-                requester: interaction.member as GuildMember,
-                link:attachment.url,
-            };
-            const p = queueResource(request, voiceConnection, fn);
-            p.then(async () => {
-                // Song Request Successful
-                // Respond with success interaction
-                const content = await request.content;
-                const songRequestEmbed = new EmbedBuilder()
-                    .setColor('#FF0000')
-                    .setTitle('Song Queued')
+        link = interaction.options.getString('name');
+        if (attachment) {
+            console.log(attachment.url);
+            let voiceConnection = getVoiceConnection(guild.id);
+            const memberVoiceChannel = (interaction.member as GuildMember).voice.channel;
+            if (!memberVoiceChannel) return interaction.editReply('Please enter a voice channel!');
+            if (!memberVoiceChannel.joinable)
+                return interaction.editReply(
+                    'I do not have sufficient permissions to join this voice channel!',
+                );
 
-                    .setDescription(
-                        `[${content.title}](${attachment.url})\n\nRequester:<@${interaction.member.user.id}>`,
-                    )
-                    .setThumbnail(content.thumbnail);
-                interaction.editReply({ embeds: [songRequestEmbed] });
-            }).catch(console.log);
-            return;
-        } catch (err) {
-            interaction.editReply("Unable to get audio")
+            if (!voiceConnection) {
+                voiceConnection = await joinVoiceChannel({
+                    channelId: memberVoiceChannel.id,
+                    guildId: guild.id,
+                    adapterCreator: memberVoiceChannel.guild.voiceAdapterCreator as any,
+                });
+            }
+            try {
+                let audio = await getMp3File(attachment.url, { seek: 0 }, false);
+                const request: States.SongRequest = {
+                    content: audio,
+                    requester: interaction.member as GuildMember,
+                    link:attachment.url,
+                };
+                const p = queueResource(request, voiceConnection, fn);
+                p.then(async () => {
+                    // Song Request Successful
+                    // Respond with success interaction
+                    const content = await request.content;
+                    const songRequestEmbed = new EmbedBuilder()
+                        .setColor('#FF0000')
+                        .setTitle('Song Queued')
+
+                        .setDescription(
+                            `[${content.title}](${attachment.url})\n\nRequester:<@${interaction.member.user.id}>`,
+                        )
+                        .setThumbnail(content.thumbnail);
+                    interaction.editReply({ embeds: [songRequestEmbed] });
+                }).catch(console.log);
+                return;
+            } catch (err) {
+                interaction.editReply("Unable to get audio")
+            }
         }
+    } else {
+        link = args[0]
     }
+
     if (!linkRegex.test(link)) {
         try {
             const searchQuery = link;
