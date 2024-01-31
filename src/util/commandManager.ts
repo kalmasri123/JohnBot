@@ -25,7 +25,7 @@ export async function registerCommands(client: Client) {
         class PlayMacro extends Command {
             constructor() {
                 super({
-                    minArgs: 2,
+                    minArgs: 0,
                     commandName: macro.name,
                     slashCommand: new SlashCommandBuilder()
                         .setName(macro.name)
