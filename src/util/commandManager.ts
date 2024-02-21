@@ -2,7 +2,7 @@ import { Command } from 'commands/Command';
 import { ChatInputCommandInteraction, Interaction, Message, SlashCommandBuilder } from 'discord.js';
 import playAction from 'actions/play';
 import { Client, REST, Routes } from 'discord.js';
-import { readdirSync } from 'fs';
+import { link, readdirSync } from 'fs';
 import { join } from 'path';
 import { env } from './env';
 const MacroModel = require("../models/macro")
@@ -21,29 +21,31 @@ export async function registerCommands(client: Client) {
 
     // add commands from database
     let macros = await MacroModel.find({})
-    for (let macro of macros) {
-        class PlayMacro extends Command {
-            constructor() {
-                super({
-                    minArgs: 0,
-                    commandName: macro.name,
-                    slashCommand: new SlashCommandBuilder()
-                        .setName(macro.name)
-                        .setDescription(`plays ${macro.link}`)
-        
-                });
-            }
-            async executeFunction(message: Message, fn: () => void = null) {
-                super.executeFunction(message, fn);
-                // playAction(this, fn);
-            }
-            async executeCommand(interaction: ChatInputCommandInteraction, fn: () => void = null) {
-                await super.executeCommand(interaction, fn);
-                const args = [macro.link]
-                playAction({interaction,guild:interaction.guild,args}, fn);
-            }
+    class PlayMacro extends Command {
+        macroLink: string
+        constructor(inputName: string, inputLink: string) {
+            super({
+                minArgs: 0,
+                commandName: inputName,
+                slashCommand: new SlashCommandBuilder()
+                    .setName(inputName)
+                    .setDescription(`plays ${inputLink}`)
+
+            });
+            this.macroLink = inputLink
         }
-        commands[macro.name] = new PlayMacro();
+        async executeFunction(message: Message, fn: () => void = null) {
+            super.executeFunction(message, fn);
+            // playAction(this, fn);
+        }
+        async executeCommand(interaction: ChatInputCommandInteraction, fn: () => void = null) {
+            await super.executeCommand(interaction, fn);
+            const args = [this.macroLink]
+            playAction({ interaction, guild: interaction.guild, args }, fn);
+        }
+    }
+    for (let macro of macros) {
+        commands[macro.name] = new PlayMacro(macro.name, macro.link);
     }
 
     const rest = new REST({ version: '10' }).setToken(process.env.BOT_TOKEN);
