@@ -5,6 +5,7 @@ import { commands, registerCommands } from '@util/commandManager';
 import { Client, VoiceChannel,GatewayIntentBits, Events } from 'discord.js';
 import '@util/actions';
 import { Command } from 'commands/Command';
+const mg = require("mongoose")
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 try {
     const client: Client = new Client({
@@ -20,6 +21,8 @@ try {
             status: 'idle',
         },
     });
+    
+    mg.connect(env.MONGOURI)
 
     client.on('ready', async () => {
         console.log('BOT IS READY');
