@@ -49,7 +49,6 @@ try {
     client.on(Events.InteractionCreate, async (interaction) => {
         if (!interaction.isChatInputCommand()) return;
         const commandName = interaction.commandName;
-        console.log(commandName);
         try {
             const command: Command = commands[commandName];
             if (!command) {
@@ -65,7 +64,6 @@ try {
                     ...Command.getBaseParams(interaction),
                     member: interaction.member as GuildMember,
                 };
-                console.log(args);
                 await interaction.deferReply();
                 const res = await macroSpec.botAction(args as ActionContext);
                 await interaction.editReply(buildInteractionResponseBody(res));

@@ -11,6 +11,7 @@ export function RequiresSameVoiceChannel() {
 
         descriptor = function (...args) {
             const actionContext = args[0] as (PlayActionContext)
+            console.log(Object.keys(actionContext))
             const { guild,voiceChannel } = actionContext;
             const voiceConnection = getVoiceConnection(guild.id);
             // const requesterVoiceChannel = voiceChannel.channelId;

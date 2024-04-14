@@ -37,7 +37,6 @@ const playAction: BotAction = async function ({
         return ActionFailure('No File or youtube video provided');
     }
     if (attachment) {
-        console.log(attachment.url);
         let voiceConnection = getVoiceConnection(guild.id);
         if (!voiceChannel) return ActionFailure('Please enter a voice channel!');
         if (!voiceChannel.joinable)
@@ -81,7 +80,6 @@ const playAction: BotAction = async function ({
             const searchQuery = link;
             const searchResults = await searchYTVideos(searchQuery, 5);
             if (searchResults.length == 0) return ActionFailure('Video not found');
-            console.log(searchResults);
 
             link = searchResults[0]?.link;
         } catch (err) {
