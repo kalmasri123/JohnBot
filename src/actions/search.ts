@@ -3,6 +3,7 @@ import { Message, EmbedBuilder, GuildMember } from 'discord.js';
 import { BotAction, ActionContext, ActionSuccess, ActionFailure } from './types';
 import * as States from '@util/state';
 import { handleQueueCommand } from '@util/audio';
+
 import {
     ClearIfNoVoiceConnection,
     CreateMessageStateIfNotExists,
@@ -13,6 +14,23 @@ export interface SearchActionContext extends ActionContext {
     searchQuery: string;
     member: GuildMember;
 }
+
+function decodeEntities(encodedString) {
+    var translate_re = /&(nbsp|amp|quot|lt|gt);/g;
+    var translate = {
+        "nbsp":" ",
+        "amp" : "&",
+        "quot": "\"",
+        "lt"  : "<",
+        "gt"  : ">"
+    };
+    return encodedString.replace(translate_re, function(match, entity) {
+        return translate[entity];
+    }).replace(/&#(\d+);/gi, function(match, numStr) {
+        var num = parseInt(numStr, 10);
+        return String.fromCharCode(num);
+    });
+}
 const searchAction: BotAction = async function ({
     guild,
     searchQuery,
@@ -21,12 +39,13 @@ const searchAction: BotAction = async function ({
     try {
         const searchResults = await searchYTVideos(searchQuery, 5);
         if (searchResults.length == 0) return ActionSuccess('Videos not found');
+        console.log(searchResults);
         const songRequestEmbed = new EmbedBuilder()
             .setColor('#FF0000')
             .setTitle(`Search Results. Pick a number from ${1} to ${searchResults.length}`)
             .addFields(
                 searchResults.map((el, i) => ({
-                    name: `${i + 1}. ${el.title}`,
+                    name: `${i + 1}. ${decodeEntities(el.title)}`,
                     value: '\u200B',
                 })),
             );
@@ -76,6 +95,7 @@ const searchAction: BotAction = async function ({
         States.messageState[guild.id][member.user.id] = followUpMessage;
         return ActionSuccess(songRequestEmbed);
     } catch (err) {
+        console.error(err);
         return ActionFailure('Unable to search. Please try again.');
     }
 };
