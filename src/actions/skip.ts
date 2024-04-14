@@ -1,19 +1,17 @@
 import { ClearIfNoVoiceConnection, CreateVoiceStateIfNotExists } from '@util/decorators';
 import { voiceState, VoiceState } from '@util/state';
-import { Action, ActionContext, SlashAction, SlashActionContext } from './types';
+import { Action, ActionContext, ActionFailure, ActionSuccess, BotAction } from './types';
 
-const skipAction: SlashAction = async function ({ guild, interaction }: SlashActionContext, fn) {
+const skipAction: BotAction = async function ({ guild }: ActionContext) {
     const guildVoiceState: VoiceState = voiceState[guild.id];
     if (guildVoiceState.queue.length > 0 || guildVoiceState.playing) {
         const resource = (await guildVoiceState.nowPlaying.content).resource as any;
         resource.end();
 
         guildVoiceState.subscription.player.stop();
-        interaction.editReply('Skipped!');
-    } else {
-        interaction.editReply("I'm not playing anything");
+        return ActionSuccess('Skipped!');
     }
-    return;
+    return ActionFailure("I'm not playing anything");
 };
 
 export const actionName = 'skip';

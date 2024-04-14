@@ -43,7 +43,7 @@ export interface FollowupCommand {
     callback: (message: Message) => any;
     data: any;
     originalMessage?: Message;
-    originalInteraction?:ChatInputCommandInteraction;
+    // originalInteraction?:ChatInputCommandInteraction;
     tag?: string;
 }
 export function createVoiceState(guildId) {

@@ -1,23 +1,23 @@
 import { getVoiceConnection } from '@discordjs/voice';
 import { Command } from 'commands/Command';
-import { Guild, GuildMember, Message } from 'discord.js';
+import { Guild, GuildMember, Message, VoiceChannel } from 'discord.js';
 import { messageState, voiceCommandState, voiceState } from './state';
-import { SlashAction, SlashActionContext } from 'actions/types';
+import { BotAction, ActionContext, ActionFailure } from 'actions/types';
+import { PlayActionContext } from 'actions/play';
 
 export function RequiresSameVoiceChannel() {
-    return function (descriptor:SlashAction) {
+    return function (descriptor:BotAction) {
         const oldMethod = descriptor;
 
         descriptor = function (...args) {
-            const { interaction } = args[0];
-            console.log(interaction);
-            const voiceConnection = getVoiceConnection(interaction.guild.id);
-            const requesterVoiceChannel = (interaction.member as GuildMember).voice.channelId;
-            console.log(interaction.guild);
-            const botVoiceChannel = interaction.guild.members.me.voice?.channelId;
-            if (botVoiceChannel && botVoiceChannel != requesterVoiceChannel) {
-                interaction.editReply('Please join my voice channel');
-                return null;
+            const actionContext = args[0] as (PlayActionContext)
+            const { guild,voiceChannel } = actionContext;
+            const voiceConnection = getVoiceConnection(guild.id);
+            // const requesterVoiceChannel = voiceChannel.channelId;
+            const botVoiceChannel = guild.members.me.voice?.channelId;
+            if (botVoiceChannel && botVoiceChannel != voiceChannel.id) {
+                return ActionFailure('Please join my voice channel');
+                
             }
             return oldMethod.apply(this, args);
         };
@@ -26,17 +26,16 @@ export function RequiresSameVoiceChannel() {
     };
 }
 export function ClearIfNoVoiceConnection() {
-    return function (descriptor:SlashAction) {
+    return function (descriptor:BotAction) {
         const oldMethod = descriptor;
 
         descriptor = function (...args) {
-            const { interaction } = args[0];
-            console.log(interaction);
-            const voiceConnection = getVoiceConnection(interaction.guild.id);
-            if (!voiceConnection && voiceState[interaction.guild.id]) {
-                voiceState[interaction.guild.id].nowPlaying = null;
-                voiceState[interaction.guild.id].playing = null;
-                voiceState[interaction.guild.id].queue = [];
+            const { guild } = args[0];
+            const voiceConnection = getVoiceConnection(guild.id);
+            if (!voiceConnection && voiceState[guild.id]) {
+                voiceState[guild.id].nowPlaying = null;
+                voiceState[guild.id].playing = null;
+                voiceState[guild.id].queue = [];
             }
             return oldMethod.apply(this, args);
         };
@@ -46,7 +45,7 @@ export function ClearIfNoVoiceConnection() {
 }
 
 export function CreateVoiceStateIfNotExists() {
-    return function (descriptor:SlashAction) {
+    return function (descriptor:BotAction) {
         const oldMethod = descriptor;
 
         descriptor = function (...args) {

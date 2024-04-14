@@ -5,15 +5,15 @@ import {
 } from '@util/decorators';
 import { voiceState, VoiceState } from '@util/state';
 import { EmbedBuilder } from 'discord.js';
-import { Action, ActionContext, SlashAction, SlashActionContext } from './types';
+import { Action, BotAction, ActionContext, ActionFailure, ActionSuccess } from './types';
 function pad(num, size) {
     var s = '000000000' + num;
     return s.substr(s.length - size);
 }
-const pauseAction: SlashAction = async function ({ interaction, guild }: SlashActionContext, fn) {
+const pauseAction: BotAction = async function ({ guild }: ActionContext) {
     const guildVoiceState: VoiceState = voiceState[guild.id];
-    if (!guildVoiceState.nowPlaying) return interaction.editReply('Not playing anything!');
-    if (guildVoiceState.paused) return interaction.editReply('Already paused!');
+    if (!guildVoiceState.nowPlaying) return ActionFailure('Not playing anything!');
+    if (guildVoiceState.paused) return ActionFailure('Already paused!');
     const content = await guildVoiceState.nowPlaying.content;
     const resource = content.audioResource;
     const durationSeconds = Math.round(resource.playbackDuration / 1000);
@@ -35,11 +35,11 @@ const pauseAction: SlashAction = async function ({ interaction, guild }: SlashAc
             )}:${pad(durationRemaining, 2)} - ${pad(lengthMinutes, 2)}:${pad(
                 lengthSeconds,
                 2,
-            )}\`\`\`\nRequester:<@${interaction.member.user.id}>`,
+            )}\`\`\`\nRequester:<@${guildVoiceState.nowPlaying.requester}>`,
         )
         .setThumbnail(content.thumbnail);
     guildVoiceState.paused = true;
-    interaction.editReply({ embeds: [songRequestEmbed] });
+    ActionSuccess(songRequestEmbed);
 };
 export const actionName = 'pause';
 export const type = 'action';

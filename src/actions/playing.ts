@@ -2,14 +2,14 @@ import { ClearIfNoVoiceConnection, CreateVoiceStateIfNotExists } from '@util/dec
 import { voiceState } from '@util/state';
 import { VoiceState } from '@util/state';
 import { EmbedBuilder } from 'discord.js';
-import { Action, ActionContext, SlashAction, SlashActionContext } from './types';
+import { BotAction, ActionContext, ActionFailure, ActionSuccess } from './types';
 function pad(num, size) {
     var s = '000000000' + num;
     return s.substr(s.length - size);
 }
-const playingAction: SlashAction = async function ({ interaction, guild }: SlashActionContext, fn) {
+const playingAction: BotAction = async function ({ guild }: ActionContext) {
     const guildVoiceState: VoiceState = voiceState[guild.id];
-    if (!guildVoiceState.playing) return interaction.editReply('Nothing is playing!');
+    if (!guildVoiceState.playing) return ActionFailure('Nothing is playing!');
     const content = await guildVoiceState.nowPlaying.content;
     const resource = content.audioResource;
     const durationSeconds = Math.round(resource.playbackDuration / 1000);
@@ -30,14 +30,14 @@ const playingAction: SlashAction = async function ({ interaction, guild }: Slash
             )}:${pad(durationRemaining, 2)} - ${pad(lengthMinutes, 2)}:${pad(
                 lengthSeconds,
                 2,
-            )}\`\`\`\nRequester:<@${interaction.member.user.id}>`,
+            )}\`\`\`\nRequester:<@${guildVoiceState.nowPlaying.requester.user.id}>`,
         )
         .setThumbnail(content.thumbnail);
-    interaction.editReply({ embeds: [songRequestEmbed] });
+    return ActionSuccess(songRequestEmbed);
 };
 
 export const actionName = 'playing';
 export const type = 'action';
 let decorated = CreateVoiceStateIfNotExists()(playingAction);
-decorated = ClearIfNoVoiceConnection()(decorated)
+decorated = ClearIfNoVoiceConnection()(decorated);
 export default decorated;

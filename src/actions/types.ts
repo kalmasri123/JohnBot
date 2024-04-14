@@ -1,16 +1,23 @@
-import { ChatInputCommandInteraction, Guild, Message } from "discord.js";
+import { EmbedBuilder } from '@discordjs/builders';
+import { ChatInputCommandInteraction, Guild, Message, VoiceChannel } from 'discord.js';
 
+// export interface ActionContext {
+//     args: string[];
+//     message:Message,
+//     guild:Guild,
+
+// }
 export interface ActionContext {
-    args: string[];
-    message:Message,
-    guild:Guild,
-    
+    guild: Guild;
+    voiceChannel:VoiceChannel
 }
-export interface SlashActionContext {
-    args: string[];
-    interaction:ChatInputCommandInteraction,
-    guild:Guild,
-    
+type ActionMessageResolvable = string | EmbedBuilder;
+export interface BotActionResponse {
+    success: boolean;
+    message?: ActionMessageResolvable
 }
-export type Action = (context:ActionContext, fn: () => void) => void;
-export type SlashAction = (context:SlashActionContext, fn: () => void) => void;
+export const ActionSuccess = (message: ActionMessageResolvable): BotActionResponse => ({ success: true, message });
+export const ActionFailure = (message: ActionMessageResolvable): BotActionResponse => ({ success: false, message });
+
+export type Action = (context: ActionContext, fn: () => void) => void;
+export type BotAction = (context: ActionContext) => Promise<BotActionResponse>;

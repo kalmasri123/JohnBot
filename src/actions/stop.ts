@@ -2,9 +2,9 @@ import { getVoiceConnection } from '@discordjs/voice';
 import { ClearIfNoVoiceConnection, CreateVoiceStateIfNotExists } from '@util/decorators';
 import { voiceState } from '@util/state';
 import { VoiceState } from '@util/state';
-import { ActionContext, Action, SlashAction, SlashActionContext } from './types';
+import { BotAction, ActionContext, ActionSuccess, ActionFailure } from './types';
 
-const stopAction: SlashAction = async function ({ guild, interaction }: SlashActionContext) {
+const stopAction: BotAction = async function ({ guild }: ActionContext) {
     const guildVoiceState: VoiceState = voiceState[guild.id];
     if (guildVoiceState.queue.length > 0 || guildVoiceState.playing) {
         guildVoiceState.queue.length = 0;
@@ -16,14 +16,14 @@ const stopAction: SlashAction = async function ({ guild, interaction }: SlashAct
         guildVoiceState.subscription = null;
         const connection = getVoiceConnection(guild.id);
         connection.destroy();
-        interaction.editReply('Stopped!');
+        return ActionSuccess('Stopped!');
     } else {
-        interaction.editReply("I'm not playing anything");
+        return ActionFailure("I'm not playing anything");
     }
 };
 export const type = 'action';
 export const actionName = 'stop';
 let decorated = CreateVoiceStateIfNotExists()(stopAction);
-decorated = ClearIfNoVoiceConnection()(decorated)
+decorated = ClearIfNoVoiceConnection()(decorated);
 
 export default decorated;

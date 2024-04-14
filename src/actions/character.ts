@@ -2,11 +2,13 @@ import { getCharacters } from '@util/anilist';
 import { CreateMessageStateIfNotExists } from '@util/decorators';
 import { getRandomInt } from '@util/helpers';
 import { FollowupCommand, deleteMessageState, messageState } from '@util/state';
-import { Message, EmbedBuilder } from 'discord.js';
+import { Message, EmbedBuilder, TextChannel } from 'discord.js';
 import stringSimilarity from 'string-similarity-js';
-import { Action, ActionContext, SlashAction, SlashActionContext } from './types';
-
-const characterAction: SlashAction = async function ({ interaction }: SlashActionContext) {
+import { Action, BotAction, ActionContext, ActionSuccess, ActionFailure } from './types';
+interface CharacterActionContext extends ActionContext {
+    textChannel: TextChannel;
+}
+const characterAction: BotAction = async function ({ textChannel,guild }: CharacterActionContext) {
     const page = getRandomInt(0, 10);
     try {
         let characterList = await getCharacters(page);
@@ -18,9 +20,8 @@ const characterAction: SlashAction = async function ({ interaction }: SlashActio
             .setImage(character.image)
             .setTitle('Guess the Character')
             .setTimestamp(Date.now());
-        interaction.editReply({ embeds: [embed] });
 
-        async function callback(this:FollowupCommand,message: Message, fn: () => void = null) {
+        async function callback(this: FollowupCommand, message: Message, fn: () => void = null) {
             // if (message.author != this.originalInteraction.member.user) return;
             switch (message.content.trim().toLowerCase()) {
                 case 'end':
@@ -67,18 +68,19 @@ const characterAction: SlashAction = async function ({ interaction }: SlashActio
             );
             return true;
         }
-        messageState[interaction.guild.id][interaction.channelId] = {
+        messageState[guild.id][textChannel.id] = {
             data: { tries: 5, character },
             tag: 'character',
             callback,
-            originalInteraction: interaction,
+            // originalInteraction: interaction,
         };
+        return ActionSuccess(embed);
     } catch (err) {
         console.error(err);
-        interaction.editReply('An error has occurred communicating with the server');
+        return ActionFailure('An error has occurred communicating with the server');
     }
 };
 export const actionName = 'character';
 export const type = 'action';
-let decorated: SlashAction = CreateMessageStateIfNotExists()(characterAction);
+let decorated: BotAction = CreateMessageStateIfNotExists()(characterAction);
 export default decorated;

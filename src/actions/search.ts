@@ -1,6 +1,6 @@
 import { getYoutubeVideo, searchYTVideos } from '@util/youtube';
-import { Message, EmbedBuilder } from 'discord.js';
-import { Action, ActionContext, SlashAction, SlashActionContext } from './types';
+import { Message, EmbedBuilder, GuildMember } from 'discord.js';
+import { BotAction, ActionContext, ActionSuccess, ActionFailure } from './types';
 import * as States from '@util/state';
 import { handleQueueCommand } from '@util/audio';
 import {
@@ -9,11 +9,18 @@ import {
     CreateVoiceStateIfNotExists,
     RequiresSameVoiceChannel,
 } from '@util/decorators';
-const searchAction: SlashAction = async function ({ interaction,args,guild }: SlashActionContext) {
+export interface SearchActionContext extends ActionContext {
+    searchQuery: string;
+    member: GuildMember;
+}
+const searchAction: BotAction = async function ({
+    guild,
+    searchQuery,
+    member,
+}: SearchActionContext) {
     try {
-        const searchQuery = args.slice(1).join(' ');
         const searchResults = await searchYTVideos(searchQuery, 5);
-        if (searchResults.length == 0) return interaction.editReply('Videos not found');
+        if (searchResults.length == 0) return ActionSuccess('Videos not found');
         const songRequestEmbed = new EmbedBuilder()
             .setColor('#FF0000')
             .setTitle(`Search Results. Pick a number from ${1} to ${searchResults.length}`)
@@ -64,13 +71,12 @@ const searchAction: SlashAction = async function ({ interaction,args,guild }: Sl
         let followUpMessage: States.FollowupCommand = {
             callback,
             data: searchResults,
-            originalInteraction: interaction,
-            
+            // originalInteraction: interaction,
         };
-        States.messageState[guild.id][interaction.member.user.id] = followUpMessage;
-        interaction.editReply({ embeds: [songRequestEmbed] });
+        States.messageState[guild.id][member.user.id] = followUpMessage;
+        return ActionSuccess(songRequestEmbed);
     } catch (err) {
-        return interaction.editReply('Unable to search. Please try again.');
+        return ActionFailure('Unable to search. Please try again.');
     }
 };
 export const actionName = 'search';

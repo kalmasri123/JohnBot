@@ -119,7 +119,6 @@ export async function queueResource(
     songRequest: SongRequest,
 
     voiceConnection: VoiceConnection,
-    callback: () => void = null,
     front = false,
 ) {
     const guildVoiceState: VoiceState = voiceState[songRequest.requester.guild.id];
@@ -134,7 +133,6 @@ export async function queueResource(
             queue.push(songRequest);
         }
         guildVoiceState.playing = true;
-        callback();
 
         const player = new AudioPlayer();
         let request = queue.shift();
@@ -240,6 +238,5 @@ export async function queueResource(
         } else {
             queue.push(songRequest);
         }
-        callback();
     }
 }

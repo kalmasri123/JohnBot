@@ -9,20 +9,11 @@ class SkipCommand extends Command {
             minArgs: 1,
             commandName: 'skip',
             slashCommand: new SlashCommandBuilder()
-            .setName('skip')
+                .setName('skip')
 
-            .setDescription('Skip the currently playing audio')
+                .setDescription('Skip the currently playing audio'),
+            botAction: skipAction,
         });
-    }
-    async executeFunction(message: Message, fn: () => void = null) {
-        super.executeFunction(message, fn);
-        // skipAction(this, fn);
-    }
-    async executeCommand(interaction: ChatInputCommandInteraction, fn: () => void = null) {
-
-        await super.executeCommand(interaction, fn);
-        const args = [""]
-        skipAction({interaction,guild:interaction.guild,args}, fn);
     }
 }
 export default new SkipCommand();

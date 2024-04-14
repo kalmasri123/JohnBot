@@ -3,31 +3,26 @@ import { ChatInputCommandInteraction, Message, SlashCommandBuilder } from 'disco
 import { VoiceState, voiceState } from '@util/state';
 import { CreateVoiceStateIfNotExists } from '@util/decorators';
 import removeAction from 'actions/remove';
-class RemoveSong extends Command {
+class RemoveSong<RemoveActionContext> extends Command {
     constructor() {
         super({
             minArgs: 2,
             commandName: 'remove',
             slashCommand: new SlashCommandBuilder()
-            .setName('remove')
-            .addStringOption((option) =>
-                option
-                    .setName('number')
-                    .setDescription('Position in the queue to remove')
-                    .setRequired(true),
-            )
-            .setDescription('Remove a song from the queue'),
+                .setName('remove')
+                .addStringOption((option) =>
+                    option
+                        .setName('number')
+                        .setDescription('Position in the queue to remove')
+                        .setRequired(true),
+                )
+                .setDescription('Remove a song from the queue'),
+            botAction: removeAction,
         });
     }
-    async executeFunction(message: Message, fn: () => void = null) {
-        super.executeFunction(message, fn);
-        // removeAction(this, fn);
-    }
-    async executeCommand(interaction: ChatInputCommandInteraction, fn: () => void = null) {
-
-        await super.executeCommand(interaction, fn);
-        const args = ["",interaction.options.getString("number")]
-        removeAction({interaction,guild:interaction.guild,args}, fn);
+    async mapParams(interaction: ChatInputCommandInteraction) {
+        const number = interaction.options.getString('number');
+        return { ...Command.getBaseParams(interaction), number };
     }
 
 }

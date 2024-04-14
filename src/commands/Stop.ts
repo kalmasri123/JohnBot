@@ -10,22 +10,11 @@ class StopCommand extends Command {
             minArgs: 1,
             commandName: 'stop',
             slashCommand: new SlashCommandBuilder()
-            .setName('stop')
+                .setName('stop')
 
-            .setDescription('Leave the voice channel')
+                .setDescription('Leave the voice channel'),
+            botAction: stopAction,
         });
-    }
-    // @CreateVoiceStateIfNotExists()
-    async executeFunction(message: Message, fn: () => void = null) {
-        super.executeFunction(message, fn);
-        // stopAction(this)
-        return;
-    }
-    async executeCommand(interaction: ChatInputCommandInteraction, fn: () => void = null) {
-
-        await super.executeCommand(interaction, fn);
-        const args = [""]
-        stopAction({interaction,guild:interaction.guild,args}, fn);
     }
 }
 export default new StopCommand();

@@ -19,7 +19,7 @@ export async function handleQueueCommand(
     }
 
     // audio.then(({ audio, title }) => {
-    let p = queueResource(request, voiceConnection, function () {});
+    let p = queueResource(request, voiceConnection);
     p.then(async () => {
         //Song Request Successful
         //Respond with success message
