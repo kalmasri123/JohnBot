@@ -1,5 +1,11 @@
 import { EmbedBuilder } from '@discordjs/builders';
-import { ChatInputCommandInteraction, Guild, Message, VoiceChannel } from 'discord.js';
+import {
+    ActionRowBuilder,
+    ChatInputCommandInteraction,
+    Guild,
+    Message,
+    VoiceChannel,
+} from 'discord.js';
 
 // export interface ActionContext {
 //     args: string[];
@@ -9,15 +15,24 @@ import { ChatInputCommandInteraction, Guild, Message, VoiceChannel } from 'disco
 // }
 export interface ActionContext {
     guild: Guild;
-    voiceChannel:VoiceChannel
+    voiceChannel: VoiceChannel;
 }
-type ActionMessageResolvable = string | EmbedBuilder;
+type ActionMessageResolvable =
+    | string
+    | EmbedBuilder
+    | { embeds: EmbedBuilder[]; components: ActionRowBuilder[] };
 export interface BotActionResponse {
     success: boolean;
-    message?: ActionMessageResolvable
+    message?: ActionMessageResolvable;
 }
-export const ActionSuccess = (message: ActionMessageResolvable): BotActionResponse => ({ success: true, message });
-export const ActionFailure = (message: ActionMessageResolvable): BotActionResponse => ({ success: false, message });
+export const ActionSuccess = (message: ActionMessageResolvable): BotActionResponse => ({
+    success: true,
+    message,
+});
+export const ActionFailure = (message: ActionMessageResolvable): BotActionResponse => ({
+    success: false,
+    message,
+});
 
 export type Action = (context: ActionContext, fn: () => void) => void;
 export type BotAction = (context: ActionContext) => Promise<BotActionResponse>;

@@ -35,7 +35,7 @@ const resumeAction: BotAction = async function ({  guild }: ActionContext) {
         )
         .setThumbnail(content.thumbnail);
     guildVoiceState.paused = false;
-    ActionSuccess(songRequestEmbed);
+    return ActionSuccess(songRequestEmbed);
 };
 export const actionName = 'resume';
 export const type = 'action';

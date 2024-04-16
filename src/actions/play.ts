@@ -6,7 +6,7 @@ import {
     queueResource,
     searchYTVideos,
 } from '@util/youtube';
-import { Attachment, EmbedBuilder, Guild, GuildMember, VoiceChannel } from 'discord.js';
+import { Attachment, EmbedBuilder, Guild, GuildMember, TextChannel, VoiceChannel } from 'discord.js';
 import * as States from '@util/state';
 import * as ytpl from 'ytpl';
 
@@ -22,6 +22,7 @@ export interface PlayActionContext extends ActionContext {
     link?: string;
     voiceChannel: VoiceChannel;
     member: GuildMember;
+    textChannel?:TextChannel;
 }
 const linkRegex =
     /http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?/;
@@ -32,6 +33,7 @@ const playAction: BotAction = async function ({
     link,
     voiceChannel,
     member:requester,
+    textChannel
 }: PlayActionContext) {
     if (!link && !attachment) {
         return ActionFailure('No File or youtube video provided');
@@ -58,7 +60,7 @@ const playAction: BotAction = async function ({
                 requester,
                 link: attachment.url,
             };
-            const p = await queueResource(request, voiceConnection);
+            const p = await queueResource(request, voiceConnection,false,textChannel);
             // Song Request Successful
             // Respond with success interaction
             const content = await request.content;
@@ -135,7 +137,7 @@ const playAction: BotAction = async function ({
             requester,
             link,
         };
-        const p = queueResource(request, voiceConnection);
+        const p = queueResource(request, voiceConnection,false,textChannel);
         if (!isPlaylist) {
             await p;
             // Song Request Successful

@@ -10,7 +10,7 @@
     "dev:debug": "ENV=DEBUG nodemon src/main.ts"
   },
   "dependencies": {
-    "@discordjs/builders": "^1.5.0",
+    "@discordjs/builders": "^1.7.0",
     "@discordjs/opus": "^0.5.3",
     "@discordjs/voice": "^0.7.5",
     "@distube/ytdl-core": "^4.13.2",

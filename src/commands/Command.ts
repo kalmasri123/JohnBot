@@ -1,4 +1,14 @@
-import { CacheType, ChatInputCommandInteraction, Guild, GuildMember, Interaction, Message, SlashCommandSubcommandsOnlyBuilder, VoiceChannel } from 'discord.js';
+import {
+    ButtonInteraction,
+    CacheType,
+    ChatInputCommandInteraction,
+    Guild,
+    GuildMember,
+    Interaction,
+    Message,
+    SlashCommandSubcommandsOnlyBuilder,
+    VoiceChannel,
+} from 'discord.js';
 import { hasUncaughtExceptionCaptureCallback, nextTick } from 'process';
 import { SlashCommandBuilder } from 'discord.js';
 import { ActionContext, BotAction } from 'actions/types';
@@ -10,9 +20,10 @@ interface CommandParameters {
     maxArgs?: number;
     commandName: string;
     notEnoughArgumentsMessage?: string;
-    slashCommand?: SlashCommandBuilder|SlashCommandSubcommandsOnlyBuilder;
+    slashCommand?: SlashCommandBuilder | SlashCommandSubcommandsOnlyBuilder;
     botAction: BotAction;
 }
+export type Repliable = ChatInputCommandInteraction | ButtonInteraction;
 export abstract class Command<T extends ActionContext = ActionContext> {
     minArgs: number;
     maxArgs?: number;
@@ -21,7 +32,7 @@ export abstract class Command<T extends ActionContext = ActionContext> {
     message: Message;
     args: string[];
     guild: Guild;
-    slashCommand?: SlashCommandBuilder|SlashCommandSubcommandsOnlyBuilder;
+    slashCommand?: SlashCommandBuilder | SlashCommandSubcommandsOnlyBuilder;
     botAction: BotAction;
     constructor({
         minArgs,
@@ -38,10 +49,10 @@ export abstract class Command<T extends ActionContext = ActionContext> {
         this.slashCommand = slashCommand;
         this.botAction = botAction;
     }
-    static getBaseParams(interaction: ChatInputCommandInteraction):ActionContext{
-        const gm = interaction.member as GuildMember
-        return { guild: interaction.guild,voiceChannel:gm.voice.channel as VoiceChannel}
-    };
+    static getBaseParams(interaction: Repliable): ActionContext {
+        const gm = interaction.member as GuildMember;
+        return { guild: interaction.guild, voiceChannel: gm.voice.channel as VoiceChannel };
+    }
     executeFunction(message: Message, fn: () => void) {
         fn;
         this.message = message;
@@ -54,8 +65,8 @@ export abstract class Command<T extends ActionContext = ActionContext> {
         }
         return;
     }
-    protected mapParams?(interaction: ChatInputCommandInteraction): Promise<T>;
-    async executeCommand(interaction: ChatInputCommandInteraction) {
+    protected mapParams?(interaction: Repliable): Promise<T>;
+    async executeCommand(interaction: Repliable) {
         await interaction.deferReply();
 
         const actionContext: T = !this.mapParams
@@ -63,7 +74,7 @@ export abstract class Command<T extends ActionContext = ActionContext> {
             : await this.mapParams(interaction);
         try {
             const result = await this.botAction(actionContext);
-            console.log(result)
+            console.log(result);
             await interaction.editReply(buildInteractionResponseBody(result));
         } catch (err) {
             console.error(err);

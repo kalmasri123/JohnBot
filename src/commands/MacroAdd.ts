@@ -40,7 +40,6 @@ class MacroAddCommand extends Command<MacroAddActionContext> {
     }
     override async mapParams(interaction: ChatInputCommandInteraction) {
         const member = interaction.member as GuildMember;
-        console.log(interaction.options,interaction.options.getSubcommand(),interaction.options.getString('link'))
         const macro = ValidMacros.find(m=>m.actionName==interaction.options.getSubcommand())
         let args = {}
         Object.keys(macro.argMap).forEach(s=>{

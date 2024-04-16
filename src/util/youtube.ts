@@ -22,6 +22,9 @@ const fetch = require('node-fetch');
 
 import { VoiceState } from '@util/state';
 import { VoiceConnectionDestroyedState } from '@discordjs/voice';
+import { APIActionRowComponent, APIButtonComponent, ButtonStyle, Message, TextChannel } from 'discord.js';
+import { NowPlayingEmbed, PlayingActionRow } from './embeds';
+import { ActionRowBuilder, ButtonBuilder } from '@discordjs/builders';
 const youtubeSearch = promisify(yts);
 export async function searchYTVideos(
     searchCriteria: string,
@@ -99,18 +102,17 @@ export async function getYoutubeVideo(link: string, { seek }, lazy = false) {
 export async function getMp3File(link: string, { seek }, lazy = false) {
     console.log('LINK', link);
     // seek = 10;
-    console.log((await fetch(link)).body)
-    const buffer:Buffer = await (await fetch(link)).buffer()
-    const metadata = await parseBuffer(buffer)
-    console.log(metadata)
+    console.log((await fetch(link)).body);
+    const buffer: Buffer = await (await fetch(link)).buffer();
+    const metadata = await parseBuffer(buffer);
+    console.log(metadata);
     const content: SongContent = {
-        title:"Custom File",
+        title: 'Custom File',
         resource: Readable.from(buffer),
-        thumbnail: "https://www.computerhope.com/jargon/m/mp3.png",
+        thumbnail: 'https://www.computerhope.com/jargon/m/mp3.png',
         duration: metadata.format.duration,
         lazy,
     };
-
 
     return content;
 }
@@ -120,6 +122,7 @@ export async function queueResource(
 
     voiceConnection: VoiceConnection,
     front = false,
+    textChannel?: TextChannel,
 ) {
     const guildVoiceState: VoiceState = voiceState[songRequest.requester.guild.id];
     const queue = guildVoiceState.queue;
@@ -145,6 +148,22 @@ export async function queueResource(
         request.content.audioResource = resource;
         resource.volume.setVolume(guildVoiceState.volume);
         player.play(resource);
+        let embedMessage: Message | null = null;
+
+
+        if (textChannel) {
+            embedMessage = await textChannel.send({
+                embeds: [
+                    NowPlayingEmbed(
+                        request.content.title,
+                        request.content.thumbnail,
+                        request.link,
+                        request.requester,
+                    ),
+                ],
+                components: [PlayingActionRow.toJSON() as APIActionRowComponent<APIButtonComponent>],
+            });
+        }
         player.on(AudioPlayerStatus.Playing, () => {
             guildVoiceState.nowPlaying = request;
             guildVoiceState.playing = true;
@@ -157,13 +176,12 @@ export async function queueResource(
             guildVoiceState.nowPlaying = null;
             guildVoiceState.playing = false;
             // console.log('IDLING', queue.length);
-
+            await embedMessage?.delete();
             if (queue.length > 0) {
                 //There is more. Get top of queue.
                 request = queue.shift();
 
                 request.content = await request.content;
-                console.log('RESOURCE');
 
                 let readableStream = request.content.lazy
                     ? (request.content.resource as () => Readable)()
@@ -176,6 +194,20 @@ export async function queueResource(
 
                 resource.volume.setVolume(guildVoiceState.volume);
                 player.play(resource);
+
+                if (textChannel) {
+                    embedMessage = await textChannel.send({
+                        embeds: [
+                            NowPlayingEmbed(
+                                request.content.title,
+                                request.content.thumbnail,
+                                request.link,
+                                request.requester,
+                            ),
+                        ],
+                        components: [PlayingActionRow.toJSON() as APIActionRowComponent<APIButtonComponent>],
+                    });
+                }
                 return;
             }
             setTimeout(function () {
@@ -191,29 +223,26 @@ export async function queueResource(
                 }
             }, 15000);
         });
-        voiceConnection.on("stateChange", (oldState, newState) => {
+        voiceConnection.on('stateChange', (oldState, newState) => {
             if (
-              oldState.status === VoiceConnectionStatus.Ready &&
-              newState.status === VoiceConnectionStatus.Connecting
+                oldState.status === VoiceConnectionStatus.Ready &&
+                newState.status === VoiceConnectionStatus.Connecting
             ) {
-              voiceConnection.configureNetworking();
+                voiceConnection.configureNetworking();
             }
-      
+
             // Seems to eliminate some keepAlive timer that's making the bot auto-pause
-            const oldNetworking = Reflect.get(oldState, "networking");
-            const newNetworking = Reflect.get(newState, "networking");
-      
-            const networkStateChangeHandler = (
-              oldNetworkState: any,
-              newNetworkState: any
-            ) => {
-              const newUdp = Reflect.get(newNetworkState, "udp");
-              clearInterval(newUdp?.keepAliveInterval);
+            const oldNetworking = Reflect.get(oldState, 'networking');
+            const newNetworking = Reflect.get(newState, 'networking');
+
+            const networkStateChangeHandler = (oldNetworkState: any, newNetworkState: any) => {
+                const newUdp = Reflect.get(newNetworkState, 'udp');
+                clearInterval(newUdp?.keepAliveInterval);
             };
-      
-            oldNetworking?.off("stateChange", networkStateChangeHandler);
-            newNetworking?.on("stateChange", networkStateChangeHandler);
-          });
+
+            oldNetworking?.off('stateChange', networkStateChangeHandler);
+            newNetworking?.on('stateChange', networkStateChangeHandler);
+        });
         voiceConnection.on(VoiceConnectionStatus.Disconnected, async (oldState, newState) => {
             try {
                 await Promise.race([

@@ -1,11 +1,8 @@
-import {
-    ClearIfNoVoiceConnection,
-    CreateVoiceStateIfNotExists,
-    
-} from '@util/decorators';
+import { ClearIfNoVoiceConnection, CreateVoiceStateIfNotExists } from '@util/decorators';
 import { voiceState, VoiceState } from '@util/state';
 import { EmbedBuilder } from 'discord.js';
 import { Action, BotAction, ActionContext, ActionFailure, ActionSuccess } from './types';
+import { PausedActionRow } from '@util/embeds';
 function pad(num, size) {
     var s = '000000000' + num;
     return s.substr(s.length - size);
@@ -39,7 +36,7 @@ const pauseAction: BotAction = async function ({ guild }: ActionContext) {
         )
         .setThumbnail(content.thumbnail);
     guildVoiceState.paused = true;
-    ActionSuccess(songRequestEmbed);
+    return ActionSuccess({ embeds: [songRequestEmbed], components: [PausedActionRow] });
 };
 export const actionName = 'pause';
 export const type = 'action';

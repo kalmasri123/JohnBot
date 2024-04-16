@@ -5,6 +5,7 @@ import {
     Interaction,
     Message,
     SlashCommandBuilder,
+    TextChannel,
     VoiceChannel,
 } from 'discord.js';
 import { CreateVoiceStateIfNotExists, RequiresSameVoiceChannel } from '@util/decorators';
@@ -39,6 +40,7 @@ class PlayCommand extends Command<PlayActionContext> {
             member,
             attachment: interaction.options.getAttachment('file'),
             voiceChannel,
+            textChannel: interaction.channel as TextChannel,
         };
     }
 }

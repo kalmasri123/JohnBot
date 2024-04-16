@@ -13,7 +13,6 @@ const messageQueue = {};
 
 
 async function handleMessage(guild: Guild) {
-    console.log(messageQueue);
     if (!messageState[guild.id]) {
         messageState[guild.id] = {};
     }
@@ -40,9 +39,7 @@ async function handleMessage(guild: Guild) {
     if (!command) {
         try {
             let followUpMessage = messageState[guild.id][message.member.id] || messageState[guild.id][message.channelId];
-            console.log(messageState);
             if (followUpMessage) {
-                console.log(message)
                 let res = await followUpMessage.callback(message);
                 if (res) {
                     if(messageState[guild.id][message.member.id]) delete messageState[guild.id][message.member.id];

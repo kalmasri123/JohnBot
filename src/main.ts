@@ -9,6 +9,8 @@ import {
     Events,
     SlashCommandIntegerOption,
     GuildMember,
+    ButtonInteraction,
+    ChatInputCommandInteraction,
 } from 'discord.js';
 import '@util/actions';
 import { Command } from 'commands/Command';
@@ -46,35 +48,42 @@ try {
 
     client.on('messageCreate', MessageEvent);
     client.on('presenceUpdate', PresenceUpdate);
-    client.on(Events.InteractionCreate, async (interaction) => {
-        if (!interaction.isChatInputCommand()) return;
-        const commandName = interaction.commandName;
-        try {
-            const command: Command = commands[commandName];
-            if (!command) {
-                const macro = await Macro.findOne({ name: commandName });
-                if (!macro) throw 'Not found';
-                const macroSpec = ValidMacros.find((m) => m.actionName == macro.action);
-                let args = {};
-                for (let k of Object.keys(macroSpec.argMap)) {
-                    args[macroSpec.argMap[k]] = macro.args[k];
+    client.on(
+        Events.InteractionCreate,
+        async (interaction: ButtonInteraction | ChatInputCommandInteraction) => {
+            // if (!interaction.isChatInputCommand() || !interaction.isButton()) return;
+
+            let commandName = null;
+            commandName = interaction.isChatInputCommand()
+                ? interaction.commandName
+                : interaction.customId;
+            try {
+                const command: Command = commands[commandName];
+                if (!command) {
+                    const macro = await Macro.findOne({ name: commandName });
+                    if (!macro) throw 'Not found';
+                    const macroSpec = ValidMacros.find((m) => m.actionName == macro.action);
+                    let args = {};
+                    for (let k of Object.keys(macroSpec.argMap)) {
+                        args[macroSpec.argMap[k]] = macro.args[k];
+                    }
+                    args = {
+                        ...args,
+                        ...Command.getBaseParams(interaction),
+                        member: interaction.member as GuildMember,
+                    };
+                    await interaction.deferReply();
+                    const res = await macroSpec.botAction(args as ActionContext);
+                    await interaction.editReply(buildInteractionResponseBody(res));
+                    return;
                 }
-                args = {
-                    ...args,
-                    ...Command.getBaseParams(interaction),
-                    member: interaction.member as GuildMember,
-                };
-                await interaction.deferReply();
-                const res = await macroSpec.botAction(args as ActionContext);
-                await interaction.editReply(buildInteractionResponseBody(res));
-                return;
+                command.executeCommand(interaction);
+            } catch (error) {
+                console.error(error);
+                console.error(`Error executing ${commandName}`);
             }
-            command.executeCommand(interaction);
-        } catch (error) {
-            console.error(error);
-            console.error(`Error executing ${interaction.commandName}`);
-        }
-    });
+        },
+    );
 } catch (err) {
     console.log(err);
 }
