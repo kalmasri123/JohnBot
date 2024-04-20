@@ -1,5 +1,5 @@
 import { getVoiceConnection, joinVoiceChannel } from '@discordjs/voice';
-import { Message, EmbedBuilder, VoiceBasedChannel, VoiceChannel } from 'discord.js';
+import { Message, EmbedBuilder, VoiceBasedChannel, VoiceChannel, TextChannel } from 'discord.js';
 import { SongRequest } from './state';
 import { queueResource } from './youtube';
 
@@ -19,7 +19,7 @@ export async function handleQueueCommand(
     }
 
     // audio.then(({ audio, title }) => {
-    let p = queueResource(request, voiceConnection);
+    let p = queueResource(request, voiceConnection,false,message.channel as TextChannel);
     p.then(async () => {
         //Song Request Successful
         //Respond with success message

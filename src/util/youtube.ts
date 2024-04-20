@@ -184,7 +184,7 @@ export async function queueResource(
             guildVoiceState.nowPlaying = null;
             guildVoiceState.playing = false;
             // console.log('IDLING', queue.length);
-            if(embedMessage.deletable) await guildVoiceState.playStateMessage?.delete();
+            if(embedMessage?.deletable) await guildVoiceState.playStateMessage?.delete();
             if (queue.length > 0) {
                 //There is more. Get top of queue.
                 request = queue.shift();
