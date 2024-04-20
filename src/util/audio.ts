@@ -19,19 +19,15 @@ export async function handleQueueCommand(
     }
 
     // audio.then(({ audio, title }) => {
-    let p = queueResource(request, voiceConnection,false,message.channel as TextChannel);
-    p.then(async () => {
-        //Song Request Successful
-        //Respond with success message
-        const content = await request.content;
-        const songRequestEmbed = new EmbedBuilder()
-            .setColor('#FF0000')
-            .setTitle('Song Queued')
+    let p = await queueResource(request, voiceConnection, false, message.channel as TextChannel);
+    const content = await request.content;
 
-            .setDescription(
-                `[${content.title}](${request.link})\n\nRequester:<@${message.member.id}>`,
-            )
-            .setThumbnail(content.thumbnail);
-        message.reply({ embeds: [songRequestEmbed] });
-    }).catch(console.log);
+    const songRequestEmbed = new EmbedBuilder()
+        .setColor('#FF0000')
+        .setTitle('Song Queued')
+
+        .setDescription(`[${content.title}](${request.link})\n\nRequester:<@${message.member.id}>`)
+        .setThumbnail(content.thumbnail);
+    message.reply({ embeds: [songRequestEmbed] });
+
 }
