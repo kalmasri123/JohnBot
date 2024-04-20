@@ -4,21 +4,21 @@ import { Guild, GuildMember, Message, VoiceChannel } from 'discord.js';
 import { messageState, voiceCommandState, voiceState } from './state';
 import { BotAction, ActionContext, ActionFailure } from 'actions/types';
 import { PlayActionContext } from 'actions/play';
+import { SkipActionContext } from 'actions/skip';
 
 export function RequiresSameVoiceChannel() {
-    return function (descriptor:BotAction) {
+    return function (descriptor: BotAction) {
         const oldMethod = descriptor;
 
         descriptor = function (...args) {
-            const actionContext = args[0] as (PlayActionContext)
-            console.log(Object.keys(actionContext))
-            const { guild,voiceChannel } = actionContext;
+            const actionContext = args[0] as PlayActionContext | SkipActionContext;
+            console.log(Object.keys(actionContext));
+            const { guild, voiceChannel } = actionContext;
             const voiceConnection = getVoiceConnection(guild.id);
             // const requesterVoiceChannel = voiceChannel.channelId;
             const botVoiceChannel = guild.members.me.voice?.channelId;
-            if (botVoiceChannel && botVoiceChannel != voiceChannel.id) {
+            if (!voiceChannel || (botVoiceChannel && botVoiceChannel != voiceChannel.id)) {
                 return ActionFailure('Please join my voice channel');
-                
             }
             return oldMethod.apply(this, args);
         };
@@ -27,7 +27,7 @@ export function RequiresSameVoiceChannel() {
     };
 }
 export function ClearIfNoVoiceConnection() {
-    return function (descriptor:BotAction) {
+    return function (descriptor: BotAction) {
         const oldMethod = descriptor;
 
         descriptor = function (...args) {
@@ -46,7 +46,7 @@ export function ClearIfNoVoiceConnection() {
 }
 
 export function CreateVoiceStateIfNotExists() {
-    return function (descriptor:BotAction) {
+    return function (descriptor: BotAction) {
         const oldMethod = descriptor;
 
         descriptor = function (...args) {
