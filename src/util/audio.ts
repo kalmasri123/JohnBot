@@ -19,7 +19,6 @@ export async function handleQueueCommand(
     }
 
     // audio.then(({ audio, title }) => {
-    let p = await queueResource(request, voiceConnection, false, message.channel as TextChannel);
     const content = await request.content;
 
     const songRequestEmbed = new EmbedBuilder()
@@ -28,6 +27,8 @@ export async function handleQueueCommand(
 
         .setDescription(`[${content.title}](${request.link})\n\nRequester:<@${message.member.id}>`)
         .setThumbnail(content.thumbnail);
-    message.reply({ embeds: [songRequestEmbed] });
 
+    await message.reply({ embeds: [songRequestEmbed] });
+
+    let p = queueResource(request, voiceConnection, false, message.channel as TextChannel);
 }
