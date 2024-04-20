@@ -5,6 +5,7 @@ import {
     Guild,
     GuildMember,
     Interaction,
+    InteractionType,
     Message,
     SlashCommandSubcommandsOnlyBuilder,
     VoiceChannel,
@@ -68,18 +69,19 @@ export abstract class Command<T extends ActionContext = ActionContext> {
     protected mapParams?(interaction: Repliable): Promise<T>;
     async executeCommand(interaction: Repliable) {
         await interaction.deferReply();
-
+        console.log(interaction.type);
         const actionContext: T = !this.mapParams
             ? (Command.getBaseParams(interaction) as T)
             : await this.mapParams(interaction);
         try {
             const result = await this.botAction(actionContext);
             console.log(result);
-            await interaction.editReply(buildInteractionResponseBody(result));
+            return await interaction.editReply(buildInteractionResponseBody(result));
         } catch (err) {
             console.error(err);
             await interaction.editReply('An Unknown error has occurred');
+            throw err;
         }
-        return;
+        // return;
     }
 }

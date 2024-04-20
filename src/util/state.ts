@@ -5,7 +5,13 @@ import {
     VoiceReceiver,
 } from '@discordjs/voice';
 import { Command } from 'commands/Command';
-import { ChatInputCommandInteraction, Guild, GuildMember, Message } from 'discord.js';
+import {
+    ChatInputCommandInteraction,
+    Guild,
+    GuildMember,
+    InteractionResponse,
+    Message,
+} from 'discord.js';
 import { Readable, Transform } from 'stream';
 import { isFunction } from 'util';
 import * as prism from 'prism-media';
@@ -27,7 +33,12 @@ export interface SongRequest {
 }
 export interface VoiceCommandState {
     members: {
-        [key: string]: { packets: AudioReceiveStream; time: number; decoded: prism.opus.Decoder,arrBuffer:any[] };
+        [key: string]: {
+            packets: AudioReceiveStream;
+            time: number;
+            decoded: prism.opus.Decoder;
+            arrBuffer: any[];
+        };
     };
 }
 export interface VoiceState {
@@ -38,6 +49,7 @@ export interface VoiceState {
     nowPlaying: SongRequest;
     volume: number;
     subscription: PlayerSubscription;
+    playStateMessage?: Message;
 }
 export interface FollowupCommand {
     callback: (message: Message) => any;

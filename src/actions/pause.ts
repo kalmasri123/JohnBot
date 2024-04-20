@@ -21,7 +21,7 @@ const pauseAction: BotAction = async function ({ guild }: ActionContext) {
     const lengthSeconds = Math.round(content.duration % 60);
     guildVoiceState.subscription.player.pause();
 
-    const songRequestEmbed = new EmbedBuilder()
+    const pausedEmbed = new EmbedBuilder()
         .setColor('#FF0000')
         .setTitle('Paused')
 
@@ -36,7 +36,7 @@ const pauseAction: BotAction = async function ({ guild }: ActionContext) {
         )
         .setThumbnail(content.thumbnail);
     guildVoiceState.paused = true;
-    return ActionSuccess({ embeds: [songRequestEmbed], components: [PausedActionRow] });
+    return ActionSuccess({ embeds: [pausedEmbed], components: [PausedActionRow] });
 };
 export const actionName = 'pause';
 export const type = 'action';

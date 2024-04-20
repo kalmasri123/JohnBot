@@ -2,6 +2,7 @@ import { ClearIfNoVoiceConnection, CreateVoiceStateIfNotExists } from '@util/dec
 import { voiceState, VoiceState } from '@util/state';
 import { EmbedBuilder } from 'discord.js';
 import { Action, BotAction, ActionContext, ActionFailure, ActionSuccess } from './types';
+import { PlayingActionRow } from '@util/embeds';
 function pad(num, size) {
     var s = '000000000' + num;
     return s.substr(s.length - size);
@@ -20,7 +21,7 @@ const resumeAction: BotAction = async function ({  guild }: ActionContext) {
     const lengthSeconds = Math.round(content.duration % 60);
     guildVoiceState.subscription.player.unpause();
 
-    const songRequestEmbed = new EmbedBuilder()
+    const resumedEmbed = new EmbedBuilder()
         .setColor('#FF0000')
         .setTitle('Resumed')
 
@@ -35,7 +36,8 @@ const resumeAction: BotAction = async function ({  guild }: ActionContext) {
         )
         .setThumbnail(content.thumbnail);
     guildVoiceState.paused = false;
-    return ActionSuccess(songRequestEmbed);
+    return ActionSuccess({ embeds: [resumedEmbed], components: [PlayingActionRow] });
+
 };
 export const actionName = 'resume';
 export const type = 'action';

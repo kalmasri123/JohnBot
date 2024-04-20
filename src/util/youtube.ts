@@ -22,7 +22,13 @@ const fetch = require('node-fetch');
 
 import { VoiceState } from '@util/state';
 import { VoiceConnectionDestroyedState } from '@discordjs/voice';
-import { APIActionRowComponent, APIButtonComponent, ButtonStyle, Message, TextChannel } from 'discord.js';
+import {
+    APIActionRowComponent,
+    APIButtonComponent,
+    ButtonStyle,
+    Message,
+    TextChannel,
+} from 'discord.js';
 import { NowPlayingEmbed, PlayingActionRow } from './embeds';
 import { ActionRowBuilder, ButtonBuilder } from '@discordjs/builders';
 const youtubeSearch = promisify(yts);
@@ -150,7 +156,6 @@ export async function queueResource(
         player.play(resource);
         let embedMessage: Message | null = null;
 
-
         if (textChannel) {
             embedMessage = await textChannel.send({
                 embeds: [
@@ -161,8 +166,11 @@ export async function queueResource(
                         request.requester,
                     ),
                 ],
-                components: [PlayingActionRow.toJSON() as APIActionRowComponent<APIButtonComponent>],
+                components: [
+                    PlayingActionRow.toJSON() as APIActionRowComponent<APIButtonComponent>,
+                ],
             });
+            guildVoiceState.playStateMessage = embedMessage;
         }
         player.on(AudioPlayerStatus.Playing, () => {
             guildVoiceState.nowPlaying = request;
@@ -176,7 +184,7 @@ export async function queueResource(
             guildVoiceState.nowPlaying = null;
             guildVoiceState.playing = false;
             // console.log('IDLING', queue.length);
-            await embedMessage?.delete();
+            if(embedMessage.deletable) await guildVoiceState.playStateMessage?.delete();
             if (queue.length > 0) {
                 //There is more. Get top of queue.
                 request = queue.shift();
@@ -205,8 +213,11 @@ export async function queueResource(
                                 request.requester,
                             ),
                         ],
-                        components: [PlayingActionRow.toJSON() as APIActionRowComponent<APIButtonComponent>],
+                        components: [
+                            PlayingActionRow.toJSON() as APIActionRowComponent<APIButtonComponent>,
+                        ],
                     });
+                    guildVoiceState.playStateMessage = embedMessage;
                 }
                 return;
             }
