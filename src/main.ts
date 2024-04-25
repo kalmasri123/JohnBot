@@ -21,8 +21,6 @@ import { ValidMacros } from '@util/macros';
 import { ActionContext } from 'actions/types';
 import { buildInteractionResponseBody } from '@util/helpers';
 import * as express from 'express';
-import https from "https"
-import fs from "fs"
 import playAction from 'actions/play';
 import {
     discordGuard,
@@ -101,17 +99,7 @@ try {
             }
         },
     );
-    if(process.env.HTTPS){
-        https.createServer({
-            key: fs.readFileSync('server.key'),
-            cert: fs.readFileSync('server.cert')
-          }, app).listen(3000, () => {
-            console.log('Listening...')
-          })
-    }else{
-        app.listen(PORT);
-
-    }
+    app.listen(PORT);
     app.use(cookieParser());
     app.get('/refresh', async (req, res, next) => {
         try {
