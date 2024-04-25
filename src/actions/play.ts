@@ -27,7 +27,7 @@ export interface PlayActionContext extends ActionContext {
 const linkRegex =
     /http(?:s?):\/\/(?:www\.)?youtu(?:be\.com\/watch\?v=|\.be\/)([\w\-\_]*)(&(amp;)?‌​[\w\?‌​=]*)?/;
 
-const playAction: BotAction = async function ({
+const playAction: BotAction<PlayActionContext> = async function ({
     guild,
     attachment,
     link,

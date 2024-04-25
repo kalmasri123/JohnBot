@@ -35,4 +35,4 @@ export const ActionFailure = (message: ActionMessageResolvable): BotActionRespon
 });
 
 export type Action = (context: ActionContext, fn: () => void) => void;
-export type BotAction = (context: ActionContext) => Promise<BotActionResponse>;
+export type BotAction<T extends ActionContext = ActionContext> = (context: T) => Promise<BotActionResponse>;

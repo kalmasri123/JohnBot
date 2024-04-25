@@ -11,6 +11,7 @@ import {
     GuildMember,
     ButtonInteraction,
     ChatInputCommandInteraction,
+    Guild,
 } from 'discord.js';
 import '@util/actions';
 import { Command } from 'commands/Command';
@@ -19,6 +20,20 @@ import Macro from 'models/Macro';
 import { ValidMacros } from '@util/macros';
 import { ActionContext } from 'actions/types';
 import { buildInteractionResponseBody } from '@util/helpers';
+import * as express from 'express';
+import playAction from 'actions/play';
+import {
+    discordGuard,
+    DiscordUser,
+    getGuildsOfUser,
+    getTokenPairFromCode,
+    refreshAccessToken,
+    setCookies,
+    TokenSet,
+} from '@util/discordApi';
+const app = express();
+import * as cookieParser from 'cookie-parser';
+const PORT = process.env.port || 3000;
 mongoose.connect(env.MONGOURI);
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 try {
@@ -84,6 +99,71 @@ try {
             }
         },
     );
+    app.listen(PORT);
+    app.use(cookieParser());
+    app.get('/refresh', async (req, res, next) => {
+        try {
+            let refreshToken = req.cookies['refreshToken'];
+            if (!refreshToken)
+                return res.status(401).json({ success: false, reason: 'No refresh token' });
+
+            const tokens: TokenSet = await refreshAccessToken(refreshToken);
+            setCookies(tokens, res);
+            res.json({ success: true });
+        } catch (err) {
+            res.clearCookie('refreshToken');
+            res.clearCookie('accessToken');
+            res.clearCookie('authMethod');
+            next(err);
+        }
+    });
+    app.get('/authorize', async (req, res) => {
+        console.log(req.query);
+        try {
+            const tokens = await getTokenPairFromCode(req.query.code?.toString());
+            setCookies(tokens, res);
+            return res.status(200).json("You may now close this tab");
+        } catch (error) {
+            return res.status(400).json({ success: false });
+        }
+    });
+    app.get('/play', discordGuard, async (req, res) => {
+        console.log(req.query);
+        const link = req.query.link as string;
+        const user: DiscordUser = (req as any).user;
+        if (!link) return res.status(400).json({ success: false, reason: 'No link provided' });
+        try {
+            const userGuilds = await getGuildsOfUser(req.cookies.accessToken);
+            // console.log(userGuilds);
+            const mutualGuilds: Guild[] = await Promise.all(
+                userGuilds
+                    .filter((g) => client.guilds.cache.get(g.id))
+                    .map(async (g) => await client.guilds.fetch(g.id)),
+            );
+            const voiceChannel: VoiceChannel = mutualGuilds
+                .find((g) => {
+                    return g.members.cache.get(user.id).voice.channel;
+                })
+                ?.members?.cache?.get(user.id).voice.channel as VoiceChannel;
+            if (!voiceChannel)
+                return res.status(400).json({ success: false, reason: 'No Voice Channel' });
+            console.log(voiceChannel);
+            const guildMember = voiceChannel.guild.members.cache.get(user.id);
+            playAction({
+                guild: voiceChannel.guild,
+                attachment: null,
+                link,
+                voiceChannel,
+                member: guildMember,
+                textChannel: null,
+            });
+
+            return res.status(200).json({ success: true });
+        } catch (error) {
+            console.log(error);
+            return res.status(401).json({ success: false });
+        }
+    });
 } catch (err) {
     console.log(err);
 }
