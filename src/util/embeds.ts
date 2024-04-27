@@ -14,5 +14,5 @@ export const NowPlayingEmbed = (title, thumbnail, url, requester) =>
     new EmbedBuilder()
         .setColor('#FF0000')
         .setTitle('Now Playing')
-        .setDescription(`[${title}](${url})\n\nRequester:<@${requester}>`)
+        .setDescription(`[${title}](${url})\n\nRequester:<${requester}>`)
         .setThumbnail(thumbnail);

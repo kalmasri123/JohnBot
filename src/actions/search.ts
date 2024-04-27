@@ -1,5 +1,5 @@
 import { getYoutubeVideo, searchYTVideos } from '@util/youtube';
-import { Message, EmbedBuilder, GuildMember } from 'discord.js';
+import { Message, EmbedBuilder, GuildMember, VoiceChannel } from 'discord.js';
 import { BotAction, ActionContext, ActionSuccess, ActionFailure } from './types';
 import * as States from '@util/state';
 import { handleQueueCommand } from '@util/audio';
@@ -13,6 +13,7 @@ import {
 export interface SearchActionContext extends ActionContext {
     searchQuery: string;
     member: GuildMember;
+    voiceChannel:VoiceChannel;
 }
 
 function decodeEntities(encodedString) {

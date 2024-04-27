@@ -6,6 +6,7 @@ import {
     SlashCommandBuilder,
     CacheType,
     GuildMember,
+    VoiceChannel,
 } from 'discord.js';
 import searchAction, { SearchActionContext } from 'actions/search';
 const linkRegex =
@@ -28,13 +29,16 @@ class SearchCommand extends Command<SearchActionContext> {
         });
     }
     override async mapParams(interaction: ChatInputCommandInteraction) {
-        console.log(Command.getBaseParams(interaction))
+        console.log(Command.getBaseParams(interaction));
+        const baseParams = Command.getBaseParams(interaction);
+        const gm = interaction.member as GuildMember;
+
         return {
-            ...Command.getBaseParams(interaction),
+            ...baseParams,
             searchQuery: interaction.options.getString('name'),
             member: interaction.member as GuildMember,
+            voiceChannel: gm.voice.channel as VoiceChannel
         };
     }
-
 }
 export default new SearchCommand();
