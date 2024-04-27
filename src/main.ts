@@ -12,6 +12,7 @@ import {
     ButtonInteraction,
     ChatInputCommandInteraction,
     Guild,
+    TextChannel,
 } from 'discord.js';
 import '@util/actions';
 import { Command } from 'commands/Command';
@@ -31,8 +32,11 @@ import {
     setCookies,
     TokenSet,
 } from '@util/discordApi';
+import GuildConfig, { addGuildConfig } from 'models/GuildConfig';
+
 const app = express();
 import * as cookieParser from 'cookie-parser';
+import { loadGuildConfigs } from 'models/GuildConfig';
 const PORT = process.env.port || 3000;
 mongoose.connect(env.MONGOURI);
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -55,12 +59,14 @@ try {
         console.log('BOT IS READY');
         await client.user.setActivity(null);
         await client.user.setPresence({ status: 'online' });
+        await loadGuildConfigs(client);
         await registerCommands();
 
         //Create Scheduled events
     });
-    client.login(env.BOT_TOKEN);
-
+    client.on('guildCreate', (guild) => {
+        addGuildConfig(client, guild);
+    });
     client.on('messageCreate', MessageEvent);
     client.on('presenceUpdate', PresenceUpdate);
     client.on(
@@ -92,7 +98,7 @@ try {
                     await interaction.editReply(buildInteractionResponseBody(res));
                     return;
                 }
-                command.executeCommand(interaction);
+                await command.executeCommand(interaction);
             } catch (error) {
                 console.error(error);
                 console.error(`Error executing ${commandName}`);
@@ -122,7 +128,7 @@ try {
         try {
             const tokens = await getTokenPairFromCode(req.query.code?.toString());
             setCookies(tokens, res);
-            return res.status(200).json("You may now close this tab");
+            return res.status(200).json('You may now close this tab');
         } catch (error) {
             return res.status(400).json({ success: false });
         }
@@ -134,7 +140,6 @@ try {
         if (!link) return res.status(400).json({ success: false, reason: 'No link provided' });
         try {
             const userGuilds = await getGuildsOfUser(req.cookies.accessToken);
-            // console.log(userGuilds);
             const mutualGuilds: Guild[] = await Promise.all(
                 userGuilds
                     .filter((g) => client.guilds.cache.get(g.id))
@@ -147,15 +152,18 @@ try {
                 ?.members?.cache?.get(user.id).voice.channel as VoiceChannel;
             if (!voiceChannel)
                 return res.status(400).json({ success: false, reason: 'No Voice Channel' });
-            console.log(voiceChannel);
-            const guildMember = voiceChannel.guild.members.cache.get(user.id);
+            const guild = voiceChannel.guild;
+            const guildConfig = await GuildConfig.findOne({ guildId: guild.id });
+            const guildMember = guild.members.cache.get(user.id);
             playAction({
-                guild: voiceChannel.guild,
+                guild: guild,
                 attachment: null,
                 link,
                 voiceChannel,
                 member: guildMember,
-                textChannel: null,
+                textChannel: guild.channels.cache.get(
+                    guildConfig?.preferredTextChannel,
+                ) as TextChannel,
             });
 
             return res.status(200).json({ success: true });
@@ -164,6 +172,7 @@ try {
             return res.status(401).json({ success: false });
         }
     });
+    client.login(env.BOT_TOKEN);
 } catch (err) {
     console.log(err);
 }

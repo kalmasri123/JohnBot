@@ -14,7 +14,7 @@ const removeAction: BotAction = async function ({ guild,index}: RemoveActionCont
             `ENTER NUMBER BETWEEN 1 AND ${guildVoiceState.queue.length} ❌ STUPID NOOB`,
         );
     guildVoiceState.queue.splice(index - 1, 1);
-    ActionFailure('Successfully removed! ✅');
+    return ActionFailure('Successfully removed! ✅');
 };
 export const actionName = 'remove';
 export const type = 'action';

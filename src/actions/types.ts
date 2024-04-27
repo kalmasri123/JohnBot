@@ -15,7 +15,6 @@ import {
 // }
 export interface ActionContext {
     guild: Guild;
-    voiceChannel: VoiceChannel;
 }
 type ActionMessageResolvable =
     | string

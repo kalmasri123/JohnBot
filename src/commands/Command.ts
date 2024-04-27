@@ -52,7 +52,7 @@ export abstract class Command<T extends ActionContext = ActionContext> {
     }
     static getBaseParams(interaction: Repliable): ActionContext {
         const gm = interaction.member as GuildMember;
-        return { guild: interaction.guild, voiceChannel: gm.voice.channel as VoiceChannel };
+        return { guild: interaction.guild, };
     }
     executeFunction(message: Message, fn: () => void) {
         fn;
