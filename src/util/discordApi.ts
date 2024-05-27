@@ -131,12 +131,13 @@ export const discordGuard = async (req: Request, res: Response, next: NextFuncti
     try {
         const { accessToken, refreshToken }: TokenSet = req.cookies;
         console.log(req.cookies);
-        if (!accessToken) return next(new Error("Unauthorized"));
+        if (!accessToken) throw new Error("Unauthorized");
         const discordUser = await getDiscordUserFromAccessToken(accessToken);
         console.log(discordUser);
         (req as any).user = discordUser
         next();
     } catch (err) {
+        console.log(err)
         return res.status(401).json({success:false})
     }
 };
