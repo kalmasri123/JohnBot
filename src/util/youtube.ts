@@ -195,12 +195,8 @@ export async function queueResource(
                     ? (request.content.resource as () => Readable)()
                     : (request.content.resource as Readable);
 
-                const resource = createAudioResource(readableStream, {
-                    inlineVolume: true,
-                });
+                const resource = createAudioResource(readableStream);
                 request.content.audioResource = resource;
-
-                resource.volume.setVolume(guildVoiceState.volume);
                 player.play(resource);
 
                 if (textChannel) {
