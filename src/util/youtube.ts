@@ -3,6 +3,11 @@ import { env } from './env';
 import { isFunction, promisify } from 'util';
 import { YouTubeSearchOptions } from 'youtube-search';
 import * as ytdl from '@distube/ytdl-core';
+import * as fs from 'fs'
+console.log(JSON.parse(fs.readFileSync("cookies.json").toString()))
+const agent = ytdl.createAgent(
+    JSON.parse(fs.readFileSync("cookies.json").toString()));
+
 import { del, get, hGet, hSet, set } from '@util/redis';
 import { PassThrough, Readable, Transform } from 'stream';
 import * as ffmpeg from 'fluent-ffmpeg';
@@ -79,7 +84,7 @@ export async function getYoutubeVideo(link: string, { seek }, lazy = false) {
         lazy,
     };
     function loadStream(): Readable {
-        const audio = ytdl(link, { filter: 'audioonly', highWaterMark: 1 << 25 }).on(
+        const audio = ytdl(link, { filter: 'audioonly', highWaterMark: 1 << 25, agent}).on(
             'error',
             (err) => console.log(err),
         );
