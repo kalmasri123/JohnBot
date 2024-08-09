@@ -70,7 +70,7 @@ export async function getYoutubeVideo(link: string, { seek }, lazy = false) {
         get(`duration_${ytID}`),
     ]);
     if (!title || !thumbnail || !lengthSeconds) {
-        const res = (await ytdl.getInfo(link)).videoDetails;
+        const res = (await ytdl.getInfo(link,{agent})).videoDetails;
         title = res.title;
         thumbnail = res.thumbnails[0].url;
         lengthSeconds = res.lengthSeconds;
