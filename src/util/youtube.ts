@@ -3,10 +3,12 @@ import { env } from './env';
 import { isFunction, promisify } from 'util';
 import { YouTubeSearchOptions } from 'youtube-search';
 import * as ytdl from '@distube/ytdl-core';
-import * as fs from 'fs'
-console.log(JSON.parse(fs.readFileSync("cookies.json").toString()))
-const agent = ytdl.createAgent(
-    JSON.parse(fs.readFileSync("cookies.json") as any));
+import * as fs from 'fs';
+console.log(JSON.parse(fs.readFileSync('cookies.json').toString()));
+const agent = ytdl.createProxyAgent(
+    { uri: `${env.HTTP_PROXY}` },
+    JSON.parse(fs.readFileSync('cookies.json') as any),
+);
 
 import { del, get, hGet, hSet, set } from '@util/redis';
 import { PassThrough, Readable, Transform } from 'stream';
@@ -70,7 +72,7 @@ export async function getYoutubeVideo(link: string, { seek }, lazy = false) {
         get(`duration_${ytID}`),
     ]);
     if (!title || !thumbnail || !lengthSeconds) {
-        const res = (await ytdl.getInfo(link,{agent})).videoDetails;
+        const res = (await ytdl.getInfo(link, { agent })).videoDetails;
         title = res.title;
         thumbnail = res.thumbnails[0].url;
         lengthSeconds = res.lengthSeconds;
@@ -84,7 +86,7 @@ export async function getYoutubeVideo(link: string, { seek }, lazy = false) {
         lazy,
     };
     function loadStream(): Readable {
-        const audio = ytdl(link, { filter: 'audioonly', highWaterMark: 1 << 25, agent}).on(
+        const audio = ytdl(link, { filter: 'audioonly', highWaterMark: 1 << 25, agent }).on(
             'error',
             (err) => console.log(err),
         );
@@ -189,7 +191,7 @@ export async function queueResource(
             guildVoiceState.nowPlaying = null;
             guildVoiceState.playing = false;
             // console.log('IDLING', queue.length);
-            if(embedMessage?.deletable) await guildVoiceState.playStateMessage?.delete();
+            if (embedMessage?.deletable) await guildVoiceState.playStateMessage?.delete();
             if (queue.length > 0) {
                 //There is more. Get top of queue.
                 request = queue.shift();
