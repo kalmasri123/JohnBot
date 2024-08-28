@@ -40,6 +40,7 @@ export interface VoiceCommandState {
             arrBuffer: any[];
         };
     };
+    lastTimeSinceCommand: Date
 }
 export interface VoiceState {
     paused: boolean;

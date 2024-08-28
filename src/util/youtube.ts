@@ -5,10 +5,12 @@ import { YouTubeSearchOptions } from 'youtube-search';
 import * as ytdl from '@distube/ytdl-core';
 import * as fs from 'fs';
 console.log(JSON.parse(fs.readFileSync('cookies.json').toString()));
-const agent = ytdl.createProxyAgent(
-    { uri: `${env.HTTP_PROXY}` },
-    JSON.parse(fs.readFileSync('cookies.json') as any),
-);
+const agent = env.HTTP_PROXY
+    ? ytdl.createProxyAgent(
+          { uri: env.HTTP_PROXY },
+          JSON.parse(fs.readFileSync('cookies.json') as any),
+      )
+    : ytdl.createAgent(JSON.parse(fs.readFileSync('cookies.json') as any));
 
 import { del, get, hGet, hSet, set } from '@util/redis';
 import { PassThrough, Readable, Transform } from 'stream';

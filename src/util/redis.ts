@@ -1,8 +1,8 @@
 import { getegid } from 'process';
-import { createClient } from 'redis';
+import { createClient, createCluster } from 'redis';
 import { promisify } from 'util';
 import { env } from './env';
-const client = createClient({url:env.REDIS_URL});
+const client = createClient({ url: env.REDIS_URL, socket: { connectTimeout: 50000 } });
 
 client.connect();
 // client.flushAll();

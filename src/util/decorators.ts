@@ -72,7 +72,7 @@ export function CreateVoiceCommandStateIfNotExists() {
         descriptor = function (...args) {
             const guildId = args[0].guild.id;
             if (!voiceCommandState[guildId]) {
-                voiceCommandState[guildId] = { members: {} };
+                voiceCommandState[guildId] = { members: {}, lastTimeSinceCommand: new Date() };
             }
             return oldMethod.apply(this, args);
         };
