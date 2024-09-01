@@ -10,6 +10,7 @@ interface Env {
     REDIS_URL: string;
     MONGOURI: string;
     HTTP_PROXY: string;
+    COOKIES_PATH: string;
 }
 export const env: Env = {
     BOT_TOKEN: process.env.BOT_TOKEN,
@@ -19,4 +20,6 @@ export const env: Env = {
     CLIENT_ID: process.env.CLIENT_ID,
     MONGOURI: process.env.MONGOURI,
     HTTP_PROXY: process.env.HTTP_PROXY,
+    COOKIES_PATH: process.env.COOKIES_PATH ?? "cookies.json"
+
 };
