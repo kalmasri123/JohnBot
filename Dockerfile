@@ -5,7 +5,6 @@ USER node
 COPY --chown=node:node ./src ./src/
 COPY --chown=node:node package*.json ./
 COPY --chown=node:node tsconfig*.json ./
-COPY --chown=node:node ./cookies.json ./cookies.json
 COPY --chown=node:node ./docker_dependencies/entrypoint.sh ./entrypoint.sh
 RUN npm install
 ENV PORT=3001
