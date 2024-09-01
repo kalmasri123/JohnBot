@@ -37,7 +37,7 @@ import GuildConfig, { addGuildConfig } from 'models/GuildConfig';
 const app = express();
 import * as cookieParser from 'cookie-parser';
 import { loadGuildConfigs } from 'models/GuildConfig';
-const PORT = process.env.port || 3000;
+const PORT = process.env.PORT || 3000;
 mongoose.connect(env.MONGOURI);
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 try {
