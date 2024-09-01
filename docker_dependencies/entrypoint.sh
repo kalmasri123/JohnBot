@@ -1,2 +1,2 @@
-cp /secrets/cookies.json ./
+cp /secrets/cookies.json ./cookies.json
 npm start
