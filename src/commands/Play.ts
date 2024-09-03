@@ -26,9 +26,9 @@ class PlayCommand extends Command<PlayActionContext> {
                         .setDescription('Video name to search for')
                         .setRequired(false),
                 )
-                .addAttachmentOption((option) =>
-                    option.setName('file').setDescription('Mp3 file').setRequired(false),
-                )
+                // .addAttachmentOption((option) =>
+                //     option.setName('file').setDescription('Mp3 file').setRequired(false),
+                // )
                 .setDescription('Play a song'),
             botAction: playAction,
         });

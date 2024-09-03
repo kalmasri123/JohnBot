@@ -1,6 +1,7 @@
 FROM node:20.5.0
 WORKDIR /app
-RUN apt-get install ffmpeg
+RUN apt-get update
+RUN apt-get install -y ffmpeg
 RUN chown -R node:node /app
 USER node
 COPY --chown=node:node ./src ./src/
