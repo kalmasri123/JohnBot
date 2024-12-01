@@ -1,4 +1,4 @@
 #!/bin/bash
 ls /secrets
-cp /secrets/.env
+cp /secrets/.env ./.env
 npm start
