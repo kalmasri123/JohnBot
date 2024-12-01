@@ -3,6 +3,8 @@ WORKDIR /app
 RUN apt-get update
 RUN apt-get install -y ffmpeg
 RUN apt-get install -y ca-certificates
+RUN apt-get install -y curl
+
 RUN chown -R node:node /app
 
 USER node
