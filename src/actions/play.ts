@@ -16,6 +16,7 @@ import {
     CreateVoiceStateIfNotExists,
     RequiresSameVoiceChannel,
 } from '@util/decorators';
+import { startTranscription } from '@util/transcribe';
 
 export interface PlayActionContext extends ActionContext {
     attachment?: Attachment;
@@ -52,6 +53,7 @@ const playAction: BotAction<PlayActionContext> = async function ({
                 guildId: guild.id,
                 adapterCreator: voiceChannel.guild.voiceAdapterCreator as any,
             });
+            startTranscription(guild,voiceChannel,voiceConnection)
         }
         try {
             let audio = await getMp3File(attachment.url, { seek: 0 }, false);
@@ -122,6 +124,8 @@ const playAction: BotAction<PlayActionContext> = async function ({
             guildId: guild.id,
             adapterCreator: voiceChannel.guild.voiceAdapterCreator as any,
         });
+        startTranscription(guild,voiceChannel,voiceConnection)
+
     }
     for (let el of links){
         let audio;

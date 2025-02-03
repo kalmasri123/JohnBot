@@ -2,6 +2,7 @@ import { getVoiceConnection, joinVoiceChannel } from '@discordjs/voice';
 import { Message, EmbedBuilder, VoiceBasedChannel, VoiceChannel, TextChannel } from 'discord.js';
 import { SongRequest } from './state';
 import { queueResource } from './youtube';
+import { startTranscription } from './transcribe';
 
 export async function handleQueueCommand(
     message: Message,
@@ -16,6 +17,7 @@ export async function handleQueueCommand(
             guildId: message.guild.id,
             adapterCreator: voiceChannel.guild.voiceAdapterCreator as any,
         });
+        startTranscription(message.guild, voiceChannel as VoiceChannel, voiceConnection);
     }
 
     // audio.then(({ audio, title }) => {
