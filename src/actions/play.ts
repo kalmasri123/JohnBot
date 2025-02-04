@@ -13,6 +13,7 @@ import * as ytpl from 'ytpl';
 import { Action, BotAction, ActionContext, ActionFailure, ActionSuccess } from './types';
 import {
     ClearIfNoVoiceConnection,
+    CreateVoiceCommandStateIfNotExists,
     CreateVoiceStateIfNotExists,
     RequiresSameVoiceChannel,
 } from '@util/decorators';
@@ -169,6 +170,7 @@ const playAction: BotAction<PlayActionContext> = async function ({
 export const actionName = 'play';
 export const type = 'action';
 let decorated = playAction;
+decorated = CreateVoiceCommandStateIfNotExists()(decorated)
 decorated = CreateVoiceStateIfNotExists()(decorated);
 decorated = RequiresSameVoiceChannel()(decorated);
 decorated = ClearIfNoVoiceConnection()(decorated);
