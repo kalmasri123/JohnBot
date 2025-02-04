@@ -15,7 +15,7 @@ const stopAction: BotAction = async function ({ guild }: ActionContext) {
 
         guildVoiceState.subscription = null;
         const connection = getVoiceConnection(guild.id);
-        connection.destroy();
+        // connection.destroy();
         return ActionSuccess('Stopped!');
     } else {
         return ActionFailure("I'm not playing anything");
