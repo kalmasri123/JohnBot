@@ -8,6 +8,8 @@ import * as prism from 'prism-media';
 import * as wavConverter from 'wav-converter';
 import { actionList, actions } from './actions';
 import stringSimilarity from 'string-similarity-js';
+import { writeFileSync } from 'fs';
+import { randomUUID } from 'crypto';
 
 export const transcribe = async function (wav: string, userId: string) {
     try {
@@ -38,7 +40,7 @@ export const startTranscription = async function (
         if (!voiceCommandState[guild.id].members[id]) {
             console.log('subscribing', id);
             const subscription = voiceConnection.receiver.subscribe(id, {
-                end: { behavior: EndBehaviorType.Manual },
+                end: { behavior: EndBehaviorType.AfterSilence, duration: 1000 },
             });
             const decoder = new prism.opus.Decoder({
                 channels: 2,
@@ -60,26 +62,14 @@ export const startTranscription = async function (
                 let pcmData = Buffer.concat(voiceCommandState[guild.id].members[id].arrBuffer);
                 voiceCommandState[guild.id].members[id].arrBuffer.length = 0;
                 delete voiceCommandState[guild.id].members[id];
-
+                writeFileSync(`${id}-${randomUUID()}.pcm`,pcmData)
                 let wavData = wavConverter.encodeWav(pcmData, {
                     numChannels: 2,
                     sampleRate: 48000,
                     byteRate: 16,
                 });
-                const config = {
-                    encoding: 1,
-                    sampleRateHertz: 48000,
-                    languageCode: 'en-US',
-                    audioChannelCount: 2,
-                };
-
                 const audio = {
-                    content: wavData.toString('base64'),
-                };
-
-                const request = {
-                    config: config,
-                    audio: audio,
+                    content: pcmData.toString('base64'),
                 };
 
                 const response = await transcribe(audio.content, id);
@@ -93,17 +83,7 @@ export const startTranscription = async function (
                     console.log(args);
 
                     let prefixIndex = args.findIndex((el) => el.toLowerCase() == 'john');
-                    if (prefixIndex == -1) {
-                        // if (
-                        //     new Date().getTime() -
-                        //         voiceCommandState[guild.id].lastTimeSinceCommand.getTime() >=
-                        //     300000
-                        // ) {
-                        //     //Close the subscriber
-                        //     closed = true;
-                        // }
-                        return;
-                    }
+                    if (prefixIndex == -1) return;
                     const sliced = args.slice(prefixIndex);
                     let actionIndex = -1;
                     let actionName = null;
@@ -122,14 +102,6 @@ export const startTranscription = async function (
                     console.log('ACTIONS', actions);
                     if (actionIndex == -1) {
                         console.log('Action not found');
-                        // if (
-                        //     new Date().getTime() -
-                        //         voiceCommandState[guild.id].lastTimeSinceCommand.getTime() >=
-                        //     300000
-                        // ) {
-                        //     //Close the subscriber
-                        //     closed = true;
-                        // }
                         return;
                     }
                     console.log('Action found', args.slice(actionIndex));
