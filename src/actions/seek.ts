@@ -29,9 +29,10 @@ const seekAction: BotAction = async function ({ guild, seconds }: SeekActionCont
     queueResource(request, voiceConnection, true).then(async () => {
         console.log('queued');
         const content = await guildVoiceState.nowPlaying.content;
-        (content.resource as any).end();
         console.log('ended');
-        guildVoiceState.subscription.player.stop();
+        guildVoiceState.subscription.player.stop(true);
+        (content.resource).destroy();
+
         console.log('stopped');
     });
 };

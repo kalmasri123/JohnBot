@@ -18,7 +18,7 @@ import * as prism from 'prism-media';
 
 //key=guildid.value = VoiceState
 export interface SongContent {
-    resource: Readable | (() => Readable) | Buffer;
+    resource: Readable
     audioResource?: AudioResource;
     title: string;
     thumbnail?: string;

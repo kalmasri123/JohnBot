@@ -9,10 +9,11 @@ export interface SkipActionContext extends ActionContext {
 const skipAction: BotAction = async function ({ guild,member }: SkipActionContext) {
     const guildVoiceState: VoiceState = voiceState[guild.id];
     if (guildVoiceState.queue.length > 0 || guildVoiceState.playing) {
-        const resource = (await guildVoiceState.nowPlaying.content).resource as any;
-        resource.end();
+        const resource = (await guildVoiceState.nowPlaying.content).resource ;
 
         guildVoiceState.subscription.player.stop();
+        resource.destroy()
+
         return ActionSuccess(`Skipped by ${member}`);
     }
     return ActionFailure("I'm not playing anything");

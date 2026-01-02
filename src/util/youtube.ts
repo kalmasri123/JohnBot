@@ -4,12 +4,11 @@ import { isFunction, promisify } from 'util';
 import { YouTubeSearchOptions } from 'youtube-search';
 import * as ytdl from '@distube/ytdl-core';
 import * as fs from 'fs';
-console.log(JSON.parse(fs.readFileSync(env.COOKIES_PATH).toString()));
 const agent = env.HTTP_PROXY
     ? ytdl.createProxyAgent(
-          { uri: env.HTTP_PROXY },
-          JSON.parse(fs.readFileSync(env.COOKIES_PATH) as any),
-      )
+        { uri: env.HTTP_PROXY },
+        JSON.parse(fs.readFileSync(env.COOKIES_PATH) as any),
+    )
     : ytdl.createAgent(JSON.parse(fs.readFileSync(env.COOKIES_PATH) as any));
 
 import { del, get, hGet, hSet, set } from '@util/redis';
@@ -27,6 +26,8 @@ import {
     VoiceConnectionStatus,
 } from '@discordjs/voice';
 import { parseBuffer, parseStream } from 'music-metadata';
+import { Innertube, Platform, Log } from "youtubei.js"
+
 const fetch = require('node-fetch');
 
 import { VoiceState } from '@util/state';
@@ -39,7 +40,24 @@ import {
     TextChannel,
 } from 'discord.js';
 import { NowPlayingEmbed, PlayingActionRow } from './embeds';
-import { ActionRowBuilder, ButtonBuilder } from '@discordjs/builders';
+const player = Innertube.create({ retrieve_player: true, generate_session_locally: true })
+
+Platform.shim.eval = async (data, env) => {
+    const properties = []
+
+    if (env.n) {
+        properties.push(`n: exportedVars.nFunction("${env.n}")`)
+    }
+
+    if (env.sig) {
+        properties.push(`sig: exportedVars.sigFunction("${env.sig}")`)
+    }
+
+    const code = `${data.output}\nreturn { ${properties.join(", ")} }`
+
+    return new Function(code)()
+}
+
 const youtubeSearch = promisify(yts);
 export async function searchYTVideos(
     searchCriteria: string,
@@ -82,21 +100,21 @@ export async function getYoutubeVideo(link: string, { seek }, lazy = false) {
     }
     const content: SongContent = {
         title,
-        resource: lazy ? loadStream : loadStream(),
+        resource: await loadStream(),
         thumbnail: thumbnail,
         duration: lengthSeconds,
         lazy,
     };
-    function loadStream(): Readable {
-        const audio = ytdl(link, { filter: 'audioonly', highWaterMark: 1 << 25, agent }).on(
-            'error',
-            (err) => console.log(err),
-        );
+    async function loadStream(): Promise<Readable> {
+        const resolvedPlayer = await player;
+        const readableStream = (await resolvedPlayer.download(ytID)) as any
+        const audio = Readable.from(readableStream)
+
+
         // const audio = createYTStream(ytInfo,{},);
         let resource: any = audio;
         if (seek > 0) {
             try {
-                console.log(audio.readableLength);
                 resource = ffmpeg(audio)
                     .seekInput(seek)
                     .format('mp3')
@@ -107,7 +125,7 @@ export async function getYoutubeVideo(link: string, { seek }, lazy = false) {
             }
         }
         if (lazy) {
-            content.resource = resource;
+            // content.resource = resource;
         }
         return resource;
     }
@@ -131,7 +149,6 @@ export async function getMp3File(link: string, { seek }, lazy = false) {
 
     return content;
 }
-
 export async function queueResource(
     songRequest: SongRequest,
 
@@ -153,12 +170,11 @@ export async function queueResource(
         guildVoiceState.playing = true;
 
         const player = new AudioPlayer();
+
         let request = queue.shift();
 
         request.content = await request.content;
-        let readableStream = request.content.lazy
-            ? (request.content.resource as () => Readable)()
-            : (request.content.resource as Readable);
+        let readableStream = (request.content.resource as Readable);
         const resource = createAudioResource(readableStream, { inlineVolume: true });
         request.content.audioResource = resource;
         resource.volume.setVolume(guildVoiceState.volume);
@@ -181,6 +197,9 @@ export async function queueResource(
             });
             guildVoiceState.playStateMessage = embedMessage;
         }
+        player.on("error", (error) => {
+            console.log("ERROR OCCURRED", error.name)
+        })
         player.on(AudioPlayerStatus.Playing, () => {
             guildVoiceState.nowPlaying = request;
             guildVoiceState.playing = true;
@@ -200,9 +219,7 @@ export async function queueResource(
 
                 request.content = await request.content;
 
-                let readableStream = request.content.lazy
-                    ? (request.content.resource as () => Readable)()
-                    : (request.content.resource as Readable);
+                let readableStream = (request.content.resource as Readable);
 
                 const resource = createAudioResource(readableStream);
                 request.content.audioResource = resource;

@@ -62,12 +62,7 @@ export const startTranscription = async function (
                 let pcmData = Buffer.concat(voiceCommandState[guild.id].members[id].arrBuffer);
                 voiceCommandState[guild.id].members[id].arrBuffer.length = 0;
                 delete voiceCommandState[guild.id].members[id];
-                writeFileSync(`${id}-${randomUUID()}.pcm`,pcmData)
-                let wavData = wavConverter.encodeWav(pcmData, {
-                    numChannels: 2,
-                    sampleRate: 48000,
-                    byteRate: 16,
-                });
+
                 const audio = {
                     content: pcmData.toString('base64'),
                 };
