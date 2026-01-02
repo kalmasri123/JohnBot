@@ -1,4 +1,4 @@
-FROM node:20.5.0
+FROM node:22.21.1
 WORKDIR /app
 RUN apt-get update
 RUN apt-get install -y ffmpeg
@@ -12,7 +12,6 @@ COPY --chown=node:node ./src ./src/
 COPY --chown=node:node package*.json ./
 COPY --chown=node:node tsconfig*.json ./
 COPY --chown=node:node ./docker_dependencies/entrypoint.sh ./entrypoint.sh
-COPY --chown=node:node cookies.json ./ 
 RUN chmod 777 entrypoint.sh
 RUN npm install
 
