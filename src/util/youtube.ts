@@ -26,7 +26,7 @@ import {
     VoiceConnectionStatus,
 } from '@discordjs/voice';
 import { parseBuffer, parseStream } from 'music-metadata';
-import { Innertube, Platform, Log } from "youtubei.js"
+import { Innertube, Platform, Log, ClientType, Constants } from "youtubei.js"
 
 const fetch = require('node-fetch');
 
@@ -40,7 +40,12 @@ import {
     TextChannel,
 } from 'discord.js';
 import { NowPlayingEmbed, PlayingActionRow } from './embeds';
-const player = Innertube.create({ retrieve_player: true, generate_session_locally: true })
+const player = Innertube.create({
+    client_type: ClientType.TV,
+    user_agent: Constants.CLIENTS.TV.USER_AGENT,
+    cookie: process.env.YT_COOKIES
+}
+)
 
 Platform.shim.eval = async (data, env) => {
     const properties = []
@@ -107,7 +112,7 @@ export async function getYoutubeVideo(link: string, { seek }, lazy = false) {
     };
     async function loadStream(): Promise<Readable> {
         const resolvedPlayer = await player;
-        const readableStream = (await resolvedPlayer.download(ytID)) as any
+        const readableStream = (await resolvedPlayer.download(ytID, { client: "TV" })) as any
         const audio = Readable.from(readableStream)
 
 
