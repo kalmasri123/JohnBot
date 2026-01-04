@@ -69,7 +69,6 @@ export abstract class Command<T extends ActionContext = ActionContext> {
     protected mapParams?(interaction: Repliable): Promise<T>;
     async executeCommand(interaction: Repliable) {
         await interaction.deferReply();
-        console.log(interaction.type);
         const actionContext: T = !this.mapParams
             ? (Command.getBaseParams(interaction) as T)
             : await this.mapParams(interaction);

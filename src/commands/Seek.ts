@@ -8,12 +8,16 @@ class SeekCommand extends Command<SeekActionContext> {
             commandName: 'seek',
             slashCommand: new SlashCommandBuilder()
                 .setName('seek')
-                .addStringOption((option) =>
-                    option.setName('time').setDescription('Time to seek to').setRequired(true),
+                .addIntegerOption((option) =>
+                    option.setName('seconds').setDescription('Time to seek to').setRequired(true),
                 )
                 .setDescription('Seek into a specific time'),
             botAction: seekAction,
         });
+    }
+    override async mapParams(interaction: ChatInputCommandInteraction) {
+        const seconds = interaction.options.getInteger('seconds');
+        return { seconds, ...Command.getBaseParams(interaction) };
     }
 
 }

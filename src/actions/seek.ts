@@ -2,11 +2,10 @@ import { getVoiceConnection } from '@discordjs/voice';
 import { ClearIfNoVoiceConnection, CreateVoiceStateIfNotExists } from '@util/decorators';
 import { SongRequest, VoiceState, voiceState } from '@util/state';
 import { getYoutubeVideo, queueResource } from '@util/youtube';
-import { Action, BotAction, ActionContext, ActionFailure } from './types';
+import { Action, BotAction, ActionContext, ActionFailure, ActionSuccess } from './types';
 export interface SeekActionContext extends ActionContext {
     seconds: number;
 }
-
 const seekAction: BotAction = async function ({ guild, seconds }: SeekActionContext) {
     const guildVoiceState: VoiceState = voiceState[guild.id];
     if (!guildVoiceState.nowPlaying) {
@@ -26,14 +25,15 @@ const seekAction: BotAction = async function ({ guild, seconds }: SeekActionCont
         link: guildVoiceState.nowPlaying.link,
     };
     // audio.then(({ audio, title }) => {
-    queueResource(request, voiceConnection, true).then(async () => {
-        console.log('queued');
+    return await queueResource(request, voiceConnection, true).then(async () => {
         const content = await guildVoiceState.nowPlaying.content;
-        console.log('ended');
         guildVoiceState.subscription.player.stop(true);
         (content.resource).destroy();
 
-        console.log('stopped');
+        return ActionSuccess(`Seeked to ${seconds}s`)
+    }).catch((err)=>{
+        console.error(err)
+        return ActionFailure("Failed to seek")
     });
 };
 

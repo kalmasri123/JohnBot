@@ -8,8 +8,8 @@ const stopAction: BotAction = async function ({ guild }: ActionContext) {
     const guildVoiceState: VoiceState = voiceState[guild.id];
     if (guildVoiceState.queue.length > 0 || guildVoiceState.playing) {
         guildVoiceState.queue.length = 0;
-        const resource = (await guildVoiceState.nowPlaying.content).resource as any;
-        resource.end();
+        const resource = (await guildVoiceState.nowPlaying.content).resource;
+        resource.destroy();
         guildVoiceState.subscription.player.stop(true);
         guildVoiceState.subscription.unsubscribe();
 
